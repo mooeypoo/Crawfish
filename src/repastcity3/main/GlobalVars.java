@@ -27,7 +27,7 @@ import com.vividsolutions.jts.geom.Geometry;
 
 import repastcity3.agent.IAgent;
 import repastcity3.environment.Route;
-
+import repastcity3.agent.AgendaFactory;
 /**
  * 
  * @author nick
@@ -44,10 +44,27 @@ public abstract class GlobalVars {
 	public static final String BuildingsRoadsCoordsCache = "BuildingsRoadsCoordsCache";
 	public static final String BuildingsRoadsCache = "BuildingsRoadsCache";
 
+	
+	public static final int ACT_HOME = 0;
+	/** These are shapefile building definitions: **/
+	public static final int ACT_HOUSE = 1;
+	public static final int ACT_WORK = 2;
+	public static final int ACT_SCHOOL = 3;
+	public static final int ACT_KINDERGARTEN = 4;
+	public static final int ACT_MALL = 5;
+	public static final int ACT_LUNCH = 6;
+
+	/** AGENT TYPES **/
+	public static final int P_ADULT = 0;
+	public static final int P_CHILD = 5;
+	public static final int P_TEEN = 10;
+	
+	
 	public static int INITIAL_INFECTED;
 	
 	public static int currentDay = 0;
 
+	public static AgendaFactory Agenda = new AgendaFactory();
 	
 	public static final class GEOGRAPHY_PARAMS {
 		

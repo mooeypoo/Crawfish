@@ -92,7 +92,7 @@ public interface IAgent {
 	 * Get the agent's home.
 	 */
 	Building getHome();
-	
+
 	/**
 	 * Set the agent type
 	 * @param type Agent type; 0: Adult; 1: Child; 2: Teenager
@@ -112,6 +112,8 @@ public interface IAgent {
 	void setFather(IAgent person);
 	void setSibling(IAgent person);
 	void setPartner(IAgent person);
+	void setChild1(IAgent person);
+	void setChild2(IAgent person);
 	
 	/**
 	 * Get parents
@@ -120,6 +122,8 @@ public interface IAgent {
 	IAgent getFather();
 	IAgent getSibling();
 	IAgent getPartner();
+	IAgent getChild1();
+	IAgent getChild2();
 	
 	/**
 	 * 

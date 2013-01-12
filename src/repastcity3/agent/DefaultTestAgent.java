@@ -18,10 +18,13 @@ public class DefaultTestAgent implements IAgent {
 
 	private static Logger LOGGER = Logger.getLogger(DefaultTestAgent.class.getName());
 
-	private IAgent mother;
-	private IAgent father;
-	private IAgent sibling;
-	private IAgent partner;
+	private IAgent mother = null;
+	private IAgent father = null;
+	private IAgent child1 = null;
+	private IAgent child2 = null;
+	private IAgent sibling = null;
+	private IAgent partner = null;
+	
 	
 	/**
 	 * Boolean stayHome
@@ -209,6 +212,25 @@ public class DefaultTestAgent implements IAgent {
 		// TODO Auto-generated method stub
 		return this.id;
 	}
+	
+	@Override
+	public IAgent getChild1() {
+		return this.child1;
+	}
+
+	@Override
+	public void setChild1(IAgent child) {
+		this.child1 = child;
+	}
+	@Override
+	public IAgent getChild2() {
+		return this.child2;
+	}
+	@Override
+	public void setChild2(IAgent child) {
+		this.child2 = child;
+	}
+
 /*
 	@Override
 	public void setAgenda(AgendaFactory agenda) {

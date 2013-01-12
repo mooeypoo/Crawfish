@@ -35,10 +35,12 @@ public class DefaultAgent implements IAgent {
 
 	private static Logger LOGGER = Logger.getLogger(DefaultAgent.class.getName());
 
-	private IAgent mother;
-	private IAgent father;
-	private IAgent sibling;
-	private IAgent partner;
+	private IAgent mother = null;
+	private IAgent father = null;
+	private IAgent child1 = null;
+	private IAgent child2 = null;
+	private IAgent sibling = null;
+	private IAgent partner = null;
 	
 	/**
 	 * Boolean stayHome
@@ -50,6 +52,7 @@ public class DefaultAgent implements IAgent {
 	
 	private Building home; // Where the agent lives
 	private Building workplace; // Where the agent works
+	private Building mall; // random mall for recreation
 	private Route route; // An object to move the agent around the world
 
 	private boolean goingHome = false; // Whether the agent is going to or from their home
@@ -70,7 +73,7 @@ public class DefaultAgent implements IAgent {
 	
 	public DefaultAgent() {
 		this.setID(uniqueID++);
-
+		this.workplace = createWorkplace();
 	}
 
 	@Override
@@ -79,37 +82,22 @@ public class DefaultAgent implements IAgent {
 		double theTime = BigDecimal.valueOf(ContextManager.realTime).
 		        round(new MathContext(5,RoundingMode.HALF_UP)).doubleValue();
 
-/*		
-		if (this.myAgenda.getItem(theTime) != null) {
-			LOGGER.info("["+theTime+ "] ("+this.getType()+") Agent " + this.getID() + " has an agenda item: " + myAgenda.getItem(theTime));
-//			Building b = ContextManager.buildingContext.getRandomObject();
-//			this.route = new Route(this, b.getCoords(), b);
-
-			this.counter++;
-			if (this.counter > 10) {
-				System.exit(0);
-			}
+		/** Calling the Agenda item from 'step' causes the code to 
+		 * break on "NullPointerException", probably because too many
+		 * agents ask the same class too many requests. We need to solve this
+		 * so we can have a single Agenda for all rather than configure agendas
+		 * in the code itself.
+		 * 
+		 * But for the meantime, I'll use a function inside DefaultAgent
+		 * (Look at 'getNextAgenda'
+		 */
+		Building nextDestBuilding = this.getNextAgendaItem(theTime);
+		if (nextDestBuilding != null) {
+			this.route = new Route(this, nextDestBuilding.getCoords(), nextDestBuilding); // Create a route to work
 		}
-*/
-/*		
-		if (theTime == 9.0) { // 9am, Agent should be leaving for work
-//			this.route = new Route(this, this.workplace.getCoords(), this.workplace); // Create a route to work
-
-			// route can only be null when the simulation starts, so the agent must be leaving home
-			this.goingHome = false; // Choose a new building to go to
-			Building b = ContextManager.buildingContext.getRandomObject();
-			this.route = new Route(this, b.getCoords(), b);
-
-		} else if (theTime == 17.0) { // 5pm, agent should go home
-		//	this.route = new Route(this, this.home.getCoords(), this.home); // Create a route home
-			// route can only be null when the simulation starts, so the agent must be leaving home
-			this.goingHome = true; // Choose a new building to go to
-			Building b = ContextManager.buildingContext.getRandomObject();
-			this.route = new Route(this, b.getCoords(), b);
-		}
-*/		
+		
 		if (this.route == null) {
-//			// route can only be null when the simulation starts, so the agent must be leaving home
+			
 		} else if (!this.route.atDestination()) {
 			//Agent on the way
 			this.route.travel();
@@ -120,6 +108,85 @@ public class DefaultAgent implements IAgent {
 
 	} // step()
 
+	/**
+	 * Find the next building to go to based on person's
+	 * agenda. Temporarily replace AgendaFactory
+	 * 
+	 * @return Building Next building to route to
+	 */
+	private Building getNextAgendaItem(double currTime) {
+		Building nextPlace = null;
+		String nextPlaceStr = "";
+		if (this.stayHome == false) {
+			// EVERYONE GOES TO WORK/KINDERGARDEN/SCHOOL 
+			if (currTime == 9.0) { // 09:00
+				nextPlace = this.workplace;
+				nextPlaceStr = "Work";
+			}
+			
+			if (this.getType() == GlobalVars.P_ADULT) {
+				if (currTime == 17.0) { // 17:00
+					nextPlace = this.home;
+					nextPlaceStr = "Home";
+				} 
+				if (this.hasChildren() == false) {
+					if (currTime == 19.5) { // 19:30
+						nextPlace = findBuilding(GlobalVars.ACT_MALL);
+						nextPlaceStr = "Mall";
+					} else if (currTime == 23.0) { // 23:00
+						nextPlace = this.home;
+						nextPlaceStr = "Home";
+					}
+				}
+			} else if (this.getType() == GlobalVars.P_TEEN) { 
+				if (currTime == 15.00) {
+					nextPlace = this.home;
+					nextPlaceStr = "Home";
+				}
+			}
+		}
+		
+		if (nextPlace == null) {
+			return null;
+		} else {
+			System.out.println("["+this.getType()+"] Agent "+this.getID() + " --> " + nextPlaceStr);
+			return nextPlace;
+		}
+	}
+	
+	private Building createWorkplace() {
+		Building work = null;
+		if (this.getType() == GlobalVars.P_ADULT) { //adult
+			work = findBuilding(GlobalVars.ACT_WORK);
+		} else if (this.getType() == GlobalVars.P_CHILD) { //child
+			work = findBuilding(GlobalVars.ACT_KINDERGARTEN);
+		} else if (this.getType() == GlobalVars.P_TEEN) { //teen
+			work = findBuilding(GlobalVars.ACT_SCHOOL);
+		}
+
+		return work;
+	}
+	
+	/** Find a random building by type **/
+	private Building findBuilding(int buildingType) {
+		Building build = null;
+		for (Building b:ContextManager.buildingContext.getRandomObjects(Building.class, 10000)) {
+			if (b.getType() == buildingType) { 
+				build = b;
+				break;
+			}		
+		}
+		return build;
+	}
+
+	
+	private Boolean hasChildren() {
+		if ((this.child1 != null) || (this.child2 != null)) {
+			return true;
+		}
+		return false;
+	}
+	
 	@Override
 	public void setType(int type) {
 		this.agentType = type;
@@ -225,25 +292,7 @@ public class DefaultAgent implements IAgent {
 		this.id = id;
 	}
 
-/*
-	@Override
-	public void setAgenda(AgendaFactory agenda) {
-		this.myAgenda = agenda;
-		LOGGER.info("Agenda set for Agent " + this.getID() + "("+this.getType()+")");
-	}
-	
-	@Override
-	public AgendaFactory getAgenda() {
-		return this.myAgenda;
-	}
-*/
-	/*
-	@Override
-	public int getID() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-*/
+
 	@Override
 	public void setSibling(IAgent sibling) {
 		this.sibling = sibling;
@@ -263,4 +312,23 @@ public class DefaultAgent implements IAgent {
 	public IAgent getPartner() {
 		return this.partner;
 	}
+	
+	@Override
+	public IAgent getChild1() {
+		return this.child1;
+	}
+
+	@Override
+	public void setChild1(IAgent child) {
+		this.child1 = child;
+	}
+	@Override
+	public IAgent getChild2() {
+		return this.child2;
+	}
+	@Override
+	public void setChild2(IAgent child) {
+		this.child2 = child;
+	}
+
 }

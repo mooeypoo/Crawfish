@@ -251,10 +251,6 @@ public class AgentFactory {
 						child1.setType(5); // child
 						child2.setType(10); // teenager
 						
-						//set agenda
-//						child1.setAgenda(childAgenda);
-//						child2.setAgenda(teenAgenda);
-
 						child1.setHome(b);
 						child2.setHome(b);
 						//connect families:
@@ -262,6 +258,11 @@ public class AgentFactory {
 						child1.setMother(coupleMama);
 						child2.setFather(coupleDaddy);
 						child2.setMother(coupleMama);
+						
+						coupleMama.setChild1(child1);
+						coupleMama.setChild2(child2);
+						coupleDaddy.setChild1(child1);
+						coupleDaddy.setChild2(child2);
 						
 						child1.setSibling(child2);
 						child2.setSibling(child1);
@@ -298,6 +299,10 @@ public class AgentFactory {
 						//connect families:
 						child.setMother(coupleMama);
 						child.setFather(coupleDaddy);
+
+						coupleMama.setChild1(child);
+						coupleDaddy.setChild1(child);
+						
 						
 						b.addAgent(child); 
 						ContextManager.addAgentToContext(child); 
