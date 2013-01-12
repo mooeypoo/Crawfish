@@ -52,8 +52,6 @@ public interface IAgent {
 	/**
 	 * Set health status
 	 */
-	
-	
 	public static enum DiseaseStages { 
 		S(0,false,false), E(10, false,true), I(20, true,true), R(30, false,false); 
 		
@@ -105,6 +103,7 @@ public interface IAgent {
 	 * Get the agent type
 	 */
 	int getType();
+	int getID();
 	
 	/**
 	 * Set parents

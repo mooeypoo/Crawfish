@@ -39,7 +39,6 @@ public class DefaultAgent implements IAgent {
 	private IAgent father;
 	private IAgent sibling;
 	private IAgent partner;
-
 	
 	/**
 	 * Boolean stayHome
@@ -51,7 +50,6 @@ public class DefaultAgent implements IAgent {
 	
 	private Building home; // Where the agent lives
 	private Building workplace; // Where the agent works
-	
 	private Route route; // An object to move the agent around the world
 
 	private boolean goingHome = false; // Whether the agent is going to or from their home
@@ -70,7 +68,7 @@ public class DefaultAgent implements IAgent {
 	private int id;
 
 	public DefaultAgent() {
-		this.id = uniqueID++;
+		this.setId(uniqueID++);
 	}
 
 	@Override
@@ -78,10 +76,7 @@ public class DefaultAgent implements IAgent {
 		/** CHECK TIME OF DAY **/
 		double theTime = BigDecimal.valueOf(ContextManager.realTime).
 		        round(new MathContext(5,RoundingMode.HALF_UP)).doubleValue();
-		
 		if (theTime == 9.0) { // 9am, Agent should be leaving for work
-//			AgendaClass Agenda = new AgendaClass(10);
-//			if (Agenda.getItem(theTime).getDestination);
 //			this.route = new Route(this, this.workplace.getCoords(), this.workplace); // Create a route to work
 
 			// route can only be null when the simulation starts, so the agent must be leaving home
@@ -90,11 +85,11 @@ public class DefaultAgent implements IAgent {
 			this.route = new Route(this, b.getCoords(), b);
 
 		} else if (theTime == 17.0) { // 5pm, agent should go home
+		//	this.route = new Route(this, this.home.getCoords(), this.home); // Create a route home
 			// route can only be null when the simulation starts, so the agent must be leaving home
 			this.goingHome = true; // Choose a new building to go to
 			Building b = ContextManager.buildingContext.getRandomObject();
 			this.route = new Route(this, b.getCoords(), b);
-//			this.route = new Route(this, this.home.getCoords(), this.home); // Create a route home
 		}
 		
 		if (this.route == null) {
@@ -138,26 +133,6 @@ public class DefaultAgent implements IAgent {
 		return this.father;
 	}
 
-	@Override
-	public void setSibling(IAgent sib) {
-		this.sibling = sib;
-	}
-	
-	@Override
-	public IAgent getSibling() {
-		return this.sibling;
-	}
-	
-	@Override
-	public void setPartner(IAgent partner) {
-		this.partner = partner;
-	}
-	
-	@Override
-	public IAgent getPartner() {
-		return this.partner;
-	}
-	
 	/**
 	 * There will be no inter-agent communication so these agents can be executed simulataneously in separate threads.
 	 */
@@ -189,7 +164,7 @@ public class DefaultAgent implements IAgent {
 
 	@Override
 	public String toString() {
-		return "Agent " + this.id;
+		return "Agent " + this.getId();
 	}
 
 	@Override
@@ -197,12 +172,12 @@ public class DefaultAgent implements IAgent {
 		if (!(obj instanceof DefaultAgent))
 			return false;
 		DefaultAgent b = (DefaultAgent) obj;
-		return this.id == b.id;
+		return this.getId() == b.getId();
 	}
 
 	@Override
 	public int hashCode() {
-		return this.id;
+		return this.getId();
 	}
 	
 	@Override
@@ -223,5 +198,39 @@ public class DefaultAgent implements IAgent {
 	@Override
 	public Boolean getStayHome() {
 		return this.stayHome;
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	@Override
+	public int getID() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void setSibling(IAgent sibling) {
+		this.sibling = sibling;
+	}
+
+	@Override
+	public void setPartner(IAgent partner) {
+		this.partner = partner;
+	}
+
+	@Override
+	public IAgent getSibling() {
+		return this.sibling;
+	}
+
+	@Override
+	public IAgent getPartner() {
+		return this.partner;
 	}
 }
