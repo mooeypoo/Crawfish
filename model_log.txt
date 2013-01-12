@@ -1,0 +1,20 @@
+Jan 11, 2013 3:10:05 PM repastcity3.main.ContextManager readProperties
+FINE: Initialising properties from file .\repastcity.properties
+Jan 11, 2013 3:10:05 PM repastcity3.main.ContextManager build
+FINE: Configuring the environment with data from ./data/gis_data/york/
+Jan 11, 2013 3:10:07 PM repastcity3.main.ContextManager build
+FINER: Read 7807 buildings from ./data/gis_data/york/buildings.shp
+Jan 11, 2013 3:10:07 PM repastcity3.main.ContextManager build
+FINER: Read 1101 roads from ./data/gis_data/york/roads.shp
+Jan 11, 2013 3:10:07 PM repastcity3.main.ContextManager testEnvironment
+FINE: Testing the environment
+Jan 11, 2013 3:10:07 PM repastcity3.main.ContextManager testEnvironment
+FINE: The road network has 983 nodes and 1101 edges.
+Jan 11, 2013 3:10:07 PM repastcity3.main.ContextManager build
+INFO: Creating agents with the agent definition: 'random:10'
+Jan 11, 2013 3:10:07 PM repastcity3.agent.AgentFactory createSanemoriAgents
+INFO: Creating 10 agents using Sanemori(random) method.
+Jan 11, 2013 3:10:07 PM repastcity3.agent.AgentFactory createSanemoriAgents
+INFO: DONE. Created 600 adults and 350 children in 350 homes.
+Jan 11, 2013 3:10:07 PM repastcity3.main.ContextManager createSchedule
+FINE: The single-threaded scheduler will be used.
