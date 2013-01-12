@@ -185,7 +185,13 @@ public class AgentFactory {
 		int totalNumAdults = 600;
 		int totalChildrenCreated = 0;
 		int teensCreated = 0;
-			Iterator<Building> i = ContextManager.buildingContext.getRandomObjects(Building.class, totalNumOfHomes)
+		//set agendas
+//		AgendaFactory adultAgenda = new AgendaFactory(0);
+//		AgendaFactory childAgenda = new AgendaFactory(5);
+//		AgendaFactory teenAgenda = new AgendaFactory(10);
+		
+
+		Iterator<Building> i = ContextManager.buildingContext.getRandomObjects(Building.class, totalNumOfHomes)
 					.iterator();
 			while (i.hasNext() && homesCreated < totalNumOfHomes) {
 				/** 		**/
@@ -211,12 +217,20 @@ public class AgentFactory {
 					// Create a new agent
 					IAgent coupleMama = new DefaultAgent(); 
 					IAgent coupleDaddy = new DefaultAgent(); 
+					
 					// Tell the agent where it lives
 					coupleMama.setHome(b); 
 					coupleDaddy.setHome(b); 
 					// Set Agent type
 					coupleMama.setType(0);
 					coupleDaddy.setType(0);
+					
+//					coupleMama.setAgenda(adultAgenda);
+//					coupleDaddy.setAgenda(adultAgenda);
+					
+					//connect families
+					coupleMama.setPartner(coupleDaddy);
+					coupleDaddy.setPartner(coupleMama);
 					
 					// Tell the building that the agent lives there
 					b.addAgent(coupleMama); 
@@ -237,13 +251,20 @@ public class AgentFactory {
 						child1.setType(5); // child
 						child2.setType(10); // teenager
 						
+						//set agenda
+//						child1.setAgenda(childAgenda);
+//						child2.setAgenda(teenAgenda);
+
 						child1.setHome(b);
 						child2.setHome(b);
-						
-						child1.setMother(coupleMama);
+						//connect families:
 						child1.setFather(coupleDaddy);
-						child2.setMother(coupleMama);
+						child1.setMother(coupleMama);
 						child2.setFather(coupleDaddy);
+						child2.setMother(coupleMama);
+						
+						child1.setSibling(child2);
+						child2.setSibling(child1);
 
 						// Tell the building that the agent lives there
 						b.addAgent(child1); 
@@ -264,15 +285,20 @@ public class AgentFactory {
 						
 						if (teensCreated < 200) {
 							child.setType(10); //teenager
+							//set agenda
+//							child.setAgenda(teenAgenda);
 							teensCreated++;
 						} else {
 							child.setType(5); //child
+							//set agenda
+//							child.setAgenda(childAgenda);
 						}
 						child.setHome(b);
 
+						//connect families:
 						child.setMother(coupleMama);
 						child.setFather(coupleDaddy);
-
+						
 						b.addAgent(child); 
 						ContextManager.addAgentToContext(child); 
 						ContextManager.moveAgent(child, ContextManager.buildingProjection.getGeometry(b).getCentroid());
@@ -326,7 +352,8 @@ public class AgentFactory {
 				/** ====================================== **/
 				if (adultsCreated < 3) { // add 100 adults
 					/** 100 Single Adults (1 per house) **/
-					IAgent singlePerson = new DefaultTestAgent(); // Create a new agent
+					IAgent singlePerson = new DefaultTestAgent();
+					
 					System.out.println("Agent "+singlePerson.getID()+ " is created as single adult");
 					singlePerson.setHome(b); // Tell the agent where it lives
 					singlePerson.setType(0);
@@ -341,7 +368,7 @@ public class AgentFactory {
 				} else { //add the couples
 					/** 500 Married Adults (2 per house) **/
 					// Create a new agent
-					IAgent coupleMama = new DefaultTestAgent(); 
+					IAgent coupleMama = new DefaultTestAgent();
 					System.out.println("Agent "+coupleMama.getID()+ " is created as a mother");
 
 					IAgent coupleDaddy = new DefaultTestAgent(); 

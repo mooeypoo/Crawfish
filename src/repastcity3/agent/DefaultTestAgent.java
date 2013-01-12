@@ -29,7 +29,8 @@ public class DefaultTestAgent implements IAgent {
 	 * true if sick child, or if a parent of a sick child 
 	 */
 	private Boolean stayHome = false; //set true if parent of a sick child
-	
+//	private AgendaFactory myAgenda;
+
 	
 	private Building home; // Where the agent lives
 	private Building workplace; // Where the agent works
@@ -208,6 +209,16 @@ public class DefaultTestAgent implements IAgent {
 		// TODO Auto-generated method stub
 		return this.id;
 	}
-
+/*
+	@Override
+	public void setAgenda(AgendaFactory agenda) {
+		this.myAgenda = agenda;
+	}
+	
+	@Override
+	public AgendaFactory getAgenda() {
+		return this.myAgenda;
+	}
+*/
 
 }

@@ -124,7 +124,10 @@ public interface IAgent {
 	/**
 	 * 
 	 */
-	
+/*
+	void setAgenda(AgendaFactory agenda);
+	AgendaFactory getAgenda();
+*/
 	/**
 	 * (Optional). Add objects to the agents memory. Used to keep a record of all the
 	 * buildings that they have passed.

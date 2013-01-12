@@ -1,20 +1,54 @@
-Jan 11, 2013 7:54:50 PM repastcity3.main.ContextManager readProperties
+Jan 11, 2013 10:17:44 PM repastcity3.main.ContextManager readProperties
 FINE: Initialising properties from file .\repastcity.properties
-Jan 11, 2013 7:54:50 PM repastcity3.main.ContextManager build
+Jan 11, 2013 10:17:44 PM repastcity3.main.ContextManager build
 FINE: Configuring the environment with data from ./data/gis_data/york/
-Jan 11, 2013 7:54:52 PM repastcity3.main.ContextManager build
+Jan 11, 2013 10:17:46 PM repastcity3.main.ContextManager build
 FINER: Read 7807 buildings from ./data/gis_data/york/buildings.shp
-Jan 11, 2013 7:54:52 PM repastcity3.main.ContextManager build
+Jan 11, 2013 10:17:46 PM repastcity3.main.ContextManager build
 FINER: Read 1101 roads from ./data/gis_data/york/roads.shp
-Jan 11, 2013 7:54:52 PM repastcity3.main.ContextManager testEnvironment
+Jan 11, 2013 10:17:46 PM repastcity3.main.ContextManager testEnvironment
 FINE: Testing the environment
-Jan 11, 2013 7:54:52 PM repastcity3.main.ContextManager testEnvironment
+Jan 11, 2013 10:17:46 PM repastcity3.main.ContextManager testEnvironment
 FINE: The road network has 983 nodes and 1101 edges.
-Jan 11, 2013 7:54:52 PM repastcity3.main.ContextManager build
-INFO: Creating agents with the agent definition: 'test'
-Jan 11, 2013 7:54:52 PM repastcity3.agent.AgentFactory createSanemoriTestAgents
-INFO: Creating -1 agents using SanemoriTest(test) method.
-Jan 11, 2013 7:54:52 PM repastcity3.agent.AgentFactory createSanemoriTestAgents
-INFO: DONE. Created 11 adults and 6 children in 7 homes.
-Jan 11, 2013 7:54:52 PM repastcity3.main.ContextManager createSchedule
+Jan 11, 2013 10:17:46 PM repastcity3.main.ContextManager build
+INFO: Creating agents with the agent definition: 'crawfish_epidemic'
+Jan 11, 2013 10:17:46 PM repastcity3.agent.AgentFactory createSanemoriAgents
+INFO: Creating -1 agents using Sanemori(crawfish_epidemic) method.
+Jan 11, 2013 10:17:46 PM repastcity3.agent.AgentFactory createSanemoriAgents
+INFO: DONE. Created 600 adults and 350 children in 350 homes.
+Jan 11, 2013 10:17:46 PM repastcity3.main.ContextManager createSchedule
 FINE: The single-threaded scheduler will be used.
+Jan 11, 2013 10:17:54 PM repastcity3.main.ContextManager printTicks
+INFO: Iterations: 1.0. Speed: 1.357960674511E9sec/ticks.
+Jan 11, 2013 10:17:55 PM repastcity3.main.ContextManager updateRealTime
+INFO: Simulating day 1
+Jan 11, 2013 10:17:57 PM repastcity3.main.ContextManager updateRealTime
+INFO: Simulating day 2
+Jan 11, 2013 10:17:58 PM repastcity3.main.ContextManager printTicks
+INFO: Iterations: 1001.0. Speed: 3.855sec/ticks.
+Jan 11, 2013 10:17:59 PM repastcity3.main.ContextManager updateRealTime
+INFO: Simulating day 3
+Jan 11, 2013 10:18:01 PM repastcity3.main.ContextManager updateRealTime
+INFO: Simulating day 4
+Jan 11, 2013 10:18:02 PM repastcity3.main.ContextManager printTicks
+INFO: Iterations: 2001.0. Speed: 3.733sec/ticks.
+Jan 11, 2013 10:18:03 PM repastcity3.main.ContextManager updateRealTime
+INFO: Simulating day 5
+Jan 11, 2013 10:18:04 PM repastcity3.main.ContextManager updateRealTime
+INFO: Simulating day 6
+Jan 11, 2013 10:18:05 PM repastcity3.main.ContextManager printTicks
+INFO: Iterations: 3001.0. Speed: 3.789sec/ticks.
+Jan 11, 2013 10:18:06 PM repastcity3.main.ContextManager updateRealTime
+INFO: Simulating day 7
+Jan 11, 2013 10:18:08 PM repastcity3.main.ContextManager updateRealTime
+INFO: Simulating day 8
+Jan 11, 2013 10:18:09 PM repastcity3.main.ContextManager printTicks
+INFO: Iterations: 4001.0. Speed: 3.75sec/ticks.
+Jan 11, 2013 10:18:10 PM repastcity3.main.ContextManager updateRealTime
+INFO: Simulating day 9
+Jan 11, 2013 10:18:12 PM repastcity3.main.ContextManager updateRealTime
+INFO: Simulating day 10
+Jan 11, 2013 10:18:13 PM repastcity3.main.ContextManager printTicks
+INFO: Iterations: 5001.0. Speed: 3.757sec/ticks.
+Jan 11, 2013 10:18:13 PM repastcity3.main.ContextManager updateRealTime
+INFO: Simulating day 11

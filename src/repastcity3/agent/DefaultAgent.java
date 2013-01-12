@@ -63,12 +63,14 @@ public class DefaultAgent implements IAgent {
 	private int agentType = 0;
 	
 	private DiseaseStages myHealthStatus = DiseaseStages.S;
-	
+	private static int counter =0;
 	private static int uniqueID = 0;
 	private int id;
-
+//	private AgendaFactory myAgenda;
+	
 	public DefaultAgent() {
-		this.setId(uniqueID++);
+		this.setID(uniqueID++);
+
 	}
 
 	@Override
@@ -76,6 +78,20 @@ public class DefaultAgent implements IAgent {
 		/** CHECK TIME OF DAY **/
 		double theTime = BigDecimal.valueOf(ContextManager.realTime).
 		        round(new MathContext(5,RoundingMode.HALF_UP)).doubleValue();
+
+/*		
+		if (this.myAgenda.getItem(theTime) != null) {
+			LOGGER.info("["+theTime+ "] ("+this.getType()+") Agent " + this.getID() + " has an agenda item: " + myAgenda.getItem(theTime));
+//			Building b = ContextManager.buildingContext.getRandomObject();
+//			this.route = new Route(this, b.getCoords(), b);
+
+			this.counter++;
+			if (this.counter > 10) {
+				System.exit(0);
+			}
+		}
+*/
+/*		
 		if (theTime == 9.0) { // 9am, Agent should be leaving for work
 //			this.route = new Route(this, this.workplace.getCoords(), this.workplace); // Create a route to work
 
@@ -91,7 +107,7 @@ public class DefaultAgent implements IAgent {
 			Building b = ContextManager.buildingContext.getRandomObject();
 			this.route = new Route(this, b.getCoords(), b);
 		}
-		
+*/		
 		if (this.route == null) {
 //			// route can only be null when the simulation starts, so the agent must be leaving home
 		} else if (!this.route.atDestination()) {
@@ -164,7 +180,7 @@ public class DefaultAgent implements IAgent {
 
 	@Override
 	public String toString() {
-		return "Agent " + this.getId();
+		return "Agent " + this.getID();
 	}
 
 	@Override
@@ -172,12 +188,12 @@ public class DefaultAgent implements IAgent {
 		if (!(obj instanceof DefaultAgent))
 			return false;
 		DefaultAgent b = (DefaultAgent) obj;
-		return this.getId() == b.getId();
+		return this.getID() == b.getID();
 	}
 
 	@Override
 	public int hashCode() {
-		return this.getId();
+		return this.getID();
 	}
 	
 	@Override
@@ -199,21 +215,35 @@ public class DefaultAgent implements IAgent {
 	public Boolean getStayHome() {
 		return this.stayHome;
 	}
-
-	public int getId() {
+	
+	@Override
+	public int getID() {
 		return id;
 	}
 
-	public void setId(int id) {
+	public void setID(int id) {
 		this.id = id;
 	}
 
+/*
+	@Override
+	public void setAgenda(AgendaFactory agenda) {
+		this.myAgenda = agenda;
+		LOGGER.info("Agenda set for Agent " + this.getID() + "("+this.getType()+")");
+	}
+	
+	@Override
+	public AgendaFactory getAgenda() {
+		return this.myAgenda;
+	}
+*/
+	/*
 	@Override
 	public int getID() {
 		// TODO Auto-generated method stub
 		return 0;
 	}
-
+*/
 	@Override
 	public void setSibling(IAgent sibling) {
 		this.sibling = sibling;
