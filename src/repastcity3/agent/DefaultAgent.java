@@ -42,6 +42,9 @@ public class DefaultAgent implements IAgent {
 	private IAgent sibling = null;
 	private IAgent partner = null;
 	
+	private double timeSpentInLocation = 0;
+
+	private double timeGotIntoLocation = -1.0;
 	/**
 	 * Boolean stayHome
 	 * false if going to work/school/kindergarden
@@ -103,7 +106,12 @@ public class DefaultAgent implements IAgent {
 			this.route.travel();
 		} else {
 			//Agent reached destination:
-			
+			/** 
+			 * Start counting the time Agent is at location
+			 * so we can use this for the infectiousness calculation
+			 * when the agent leaves the location
+			 *  **/
+			this.timeSpentInLocation++;
 		}
 
 	} // step()
@@ -149,7 +157,14 @@ public class DefaultAgent implements IAgent {
 		if (nextPlace == null) {
 			return null;
 		} else {
-			System.out.println("["+this.getType()+"] Agent "+this.getID() + " --> " + nextPlaceStr);
+			System.out.println(currTime + " ["+this.getType()+"] Agent "+this.getID() + " --> " + nextPlaceStr);
+			System.out.println("	> Time spent at previous location: " + timeSpentInLocation + "m");
+			/** 
+			 * Agent is leaving towards a new destination. 
+			 * Make sure the time counter is back to zero
+			 */
+
+			this.timeSpentInLocation = 0;
 			return nextPlace;
 		}
 	}
