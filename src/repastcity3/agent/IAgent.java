@@ -32,6 +32,7 @@ import repastcity3.environment.Building;
 public interface IAgent {
 	
 
+
 	/**
 	 * Controls the agent. This method will be called by the scheduler once per
 	 * iteration.
@@ -124,6 +125,10 @@ public interface IAgent {
 	IAgent getPartner();
 	IAgent getChild1();
 	IAgent getChild2();
+	
+	boolean isHasChildren();
+	void setHasChildren(boolean hasChildren);
+	
 	
 	/**
 	 * 

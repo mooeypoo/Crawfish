@@ -345,7 +345,8 @@ public class AgentFactory {
 		int totalChildrenCreated = 0;
 		int teensCreated = 0;
 		int singleones = 0;
-			Iterator<Building> i = ContextManager.buildingContext.getRandomObjects(Building.class, totalNumOfHomes)
+
+		Iterator<Building> i = ContextManager.buildingContext.getRandomObjects(Building.class, totalNumOfHomes)
 					.iterator();
 			while (i.hasNext() && homesCreated < totalNumOfHomes) {
 				/** 		**/
@@ -363,6 +364,7 @@ public class AgentFactory {
 					singlePerson.setHome(b); // Tell the agent where it lives
 					singlePerson.setType(0);
 
+					
 					b.addAgent(singlePerson); // Tell the building that the agent lives there
 					ContextManager.addAgentToContext(singlePerson); // Add the agent to the context
 					// Finally move the agent to the place where it lives.
@@ -417,17 +419,19 @@ public class AgentFactory {
 						child2.setHome(b);
 						
 						child1.setMother(coupleMama);
+						coupleMama.setHasChildren(true);
 						System.out.println("Agent "+coupleMama.getID()+ " is the mother of "+child1.getID());
 
 						child1.setFather(coupleDaddy);
 						System.out.println("Agent "+coupleDaddy.getID()+ " is the father of "+child1.getID());
-
+						coupleDaddy.setHasChildren(true);
 						child2.setMother(coupleMama);
 						System.out.println("Agent "+coupleMama.getID()+ " is the mother of "+child2.getID());
 
 						child2.setFather(coupleDaddy);
 						System.out.println("Agent "+coupleDaddy.getID()+ " is the mother of "+child2.getID());
-
+						
+						
 						// Tell the building that the agent lives there
 						b.addAgent(child1); 
 						b.addAgent(child2); 
@@ -468,9 +472,11 @@ public class AgentFactory {
 
 						child.setMother(coupleMama);
 						System.out.println("Agent "+coupleMama.getID()+ " is the mother of "+child.getID());
+						coupleMama.setHasChildren(true);
 
 						child.setFather(coupleDaddy);
 						System.out.println("Agent "+coupleDaddy.getID()+ " is the father of "+child.getID());
+						coupleDaddy.setHasChildren(true);
 
 						b.addAgent(child); 
 						ContextManager.addAgentToContext(child); 
@@ -668,6 +674,8 @@ public class AgentFactory {
 		interface CreateAgentMethod {
 			void createagents(boolean dummy, AgentFactory af) throws AgentCreationException;
 		}
+		
+
 	}
 
 }

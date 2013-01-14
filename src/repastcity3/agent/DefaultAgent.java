@@ -72,6 +72,8 @@ public class DefaultAgent implements IAgent {
 	private static int counter =0;
 	private static int uniqueID = 0;
 	private int id;
+
+	private boolean hasChildren =false;
 //	private AgendaFactory myAgenda;
 	
 	public DefaultAgent() {
@@ -131,13 +133,19 @@ public class DefaultAgent implements IAgent {
 				nextPlace = this.workplace;
 				nextPlaceStr = "Work";
 			}
-			
+			if(this.getType() == GlobalVars.P_CHILD){
+				if(currTime == 18.0){
+					nextPlace = this.home;
+					nextPlaceStr = "Home";
+				}
+				
+			}
 			if (this.getType() == GlobalVars.P_ADULT) {
 				if (currTime == 17.0) { // 17:00
 					nextPlace = this.home;
 					nextPlaceStr = "Home";
 				} 
-				if (this.hasChildren() == false) {
+				if (this.isHasChildren() == false) {
 					if (currTime == 19.5) { // 19:30
 						nextPlace = findBuilding(GlobalVars.ACT_MALL);
 						nextPlaceStr = "Mall";
@@ -195,7 +203,7 @@ public class DefaultAgent implements IAgent {
 	}
 
 	
-	private Boolean hasChildren() {
+	private boolean hasChildren() {
 		if ((this.child1 != null) || (this.child2 != null)) {
 			return true;
 		}
@@ -344,6 +352,14 @@ public class DefaultAgent implements IAgent {
 	@Override
 	public void setChild2(IAgent child) {
 		this.child2 = child;
+	}
+
+	public boolean isHasChildren() {
+		return hasChildren;
+	}
+
+	public void setHasChildren(boolean hasChildren) {
+		this.hasChildren = hasChildren;
 	}
 
 }

@@ -25,6 +25,12 @@ public class DefaultTestAgent implements IAgent {
 	private IAgent sibling = null;
 	private IAgent partner = null;
 	
+	private boolean hasChildren = false;
+	
+
+	private double timeSpentInLocation = 0;
+
+	private double timeGotIntoLocation = -1.0;
 	
 	/**
 	 * Boolean stayHome
@@ -37,6 +43,7 @@ public class DefaultTestAgent implements IAgent {
 	
 	private Building home; // Where the agent lives
 	private Building workplace; // Where the agent works
+	private Building mall; // random mall for recreation
 	private Route route; // An object to move the agent around the world
 
 	private boolean goingHome = false; // Whether the agent is going to or from their home
@@ -56,40 +63,137 @@ public class DefaultTestAgent implements IAgent {
 
 	public DefaultTestAgent() {
 		this.id = uniqueID++;
+		this.workplace = createWorkplace();
+
 	}
 
+	private Building createWorkplace() {
+		// TODO Auto-generated method stub
+		Building work = null;
+		if (this.getType() == GlobalVars.P_ADULT) { //adult
+			work = findBuilding(GlobalVars.ACT_WORK);
+		} else if (this.getType() == GlobalVars.P_CHILD) { //child
+			work = findBuilding(GlobalVars.ACT_KINDERGARTEN);
+		} else if (this.getType() == GlobalVars.P_TEEN) { //teen
+			work = findBuilding(GlobalVars.ACT_SCHOOL);
+		}
+
+		return work;
+	}
+
+
+	
 	@Override
 	public void step() throws Exception {
 		/** CHECK TIME OF DAY **/
 		double theTime = BigDecimal.valueOf(ContextManager.realTime).
 		        round(new MathContext(5,RoundingMode.HALF_UP)).doubleValue();
-		if (theTime == 9.0) { // 9am, Agent should be leaving for work
-//			this.route = new Route(this, this.workplace.getCoords(), this.workplace); // Create a route to work
-
-			// route can only be null when the simulation starts, so the agent must be leaving home
-			this.goingHome = false; // Choose a new building to go to
-			Building b = ContextManager.buildingContext.getRandomObject();
-			this.route = new Route(this, b.getCoords(), b);
-
-		} else if (theTime == 17.0) { // 5pm, agent should go home
-		//	this.route = new Route(this, this.home.getCoords(), this.home); // Create a route home
-			// route can only be null when the simulation starts, so the agent must be leaving home
-			this.goingHome = true; // Choose a new building to go to
-			Building b = ContextManager.buildingContext.getRandomObject();
-			this.route = new Route(this, b.getCoords(), b);
+		Building nextDestBuilding = this.getNextAgendaItem(theTime);
+		if (nextDestBuilding != null) {
+			this.route = new Route(this, nextDestBuilding.getCoords(), nextDestBuilding); // Create a route to work
 		}
 		
 		if (this.route == null) {
-//			// route can only be null when the simulation starts, so the agent must be leaving home
+			
 		} else if (!this.route.atDestination()) {
 			//Agent on the way
 			this.route.travel();
 		} else {
 			//Agent reached destination:
-			
+			/** 
+			 * Start counting the time Agent is at location
+			 * so we can use this for the infectiousness calculation
+			 * when the agent leaves the location
+			 *  **/
+			this.timeSpentInLocation++;
 		}
 
 	} // step()
+
+	private Building getNextAgendaItem(double currTime) {
+		// TODO Auto-generated method stub
+		Building nextPlace = null;
+		String nextPlaceStr = "";
+		if (this.stayHome == false) {
+			// EVERYONE GOES TO WORK/KINDERGARDEN/SCHOOL 
+			if (currTime == 9.0) { // 09:00
+				nextPlace = this.workplace;
+				if(this.getType() == 0){
+					nextPlaceStr = "Work";
+				}else if(this.getType() == 5){
+					nextPlaceStr = "Kindergarden";		
+				}else{
+					nextPlaceStr = "School";					
+				}
+				
+			}
+			
+			if(this.getType() == GlobalVars.P_CHILD){
+				if(currTime == 18.0){
+					nextPlace = this.home;
+					nextPlaceStr = "Home";
+				}
+				
+			}
+			
+			if (this.getType() == GlobalVars.P_ADULT) {
+				if (currTime == 17.0) { // 17:00
+					nextPlace = this.home;
+					nextPlaceStr = "Home";
+				} 
+				if (this.isHasChildren() == false) {
+					if (currTime == 19.5) { // 19:30
+						nextPlace = findBuilding(GlobalVars.ACT_MALL);
+						nextPlaceStr = "Mall";
+					} else if (currTime == 23.0) { // 23:00
+						nextPlace = this.home;
+						nextPlaceStr = "Home";
+					}
+				}
+			} else if (this.getType() == GlobalVars.P_TEEN) { 
+				if (currTime == 15.00) {
+					nextPlace = this.home;
+					nextPlaceStr = "Home";
+				}
+			}
+		}
+		
+		if (nextPlace == null) {
+			return null;
+		} else {
+			System.out.println(currTime + " ["+this.getType()+"] Agent "+this.getID() + " --> " + nextPlaceStr);
+			System.out.println("	> Time spent at previous location: " + timeSpentInLocation + "m");
+			/** 
+			 * Agent is leaving towards a new destination. 
+			 * Make sure the time counter is back to zero
+			 */
+
+			this.timeSpentInLocation = 0;
+			return nextPlace;
+		}
+	}
+
+	
+	
+	private Building findBuilding(int buildingType) {
+		// TODO Auto-generated method stub
+		Building build = null;
+		for (Building b:ContextManager.buildingContext.getRandomObjects(Building.class, 10000)) {
+			if (b.getType() == buildingType) { 
+				build = b;
+				break;
+			}		
+		}
+		return build;
+	}
+
+	public boolean isHasChildren() {
+		return hasChildren;
+	}
+
+	public void setHasChildren(boolean hasChildren) {
+		this.hasChildren = hasChildren;
+	}
 
 	@Override
 	public void setType(int type) {
