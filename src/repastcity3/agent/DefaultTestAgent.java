@@ -285,7 +285,6 @@ public class DefaultTestAgent implements IAgent {
 	}
 
 
-
 	@Override
 	public int hashCode() {
 		return this.id;

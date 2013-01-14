@@ -58,6 +58,8 @@ public class DefaultAgent implements IAgent {
 	private Building mall; // random mall for recreation
 	private Route route; // An object to move the agent around the world
 
+	private Building currentBuilding; //the building the agent is currently located
+	
 	private boolean goingHome = false; // Whether the agent is going to or from their home
 	
 	/** 
@@ -99,25 +101,41 @@ public class DefaultAgent implements IAgent {
 		Building nextDestBuilding = this.getNextAgendaItem(theTime);
 		if (nextDestBuilding != null) {
 			this.route = new Route(this, nextDestBuilding.getCoords(), nextDestBuilding); // Create a route to work
+			this.currentBuilding = nextDestBuilding;
 		}
 		
 		if (this.route == null) {
-			
-		} else if (!this.route.atDestination()) {
-			//Agent on the way
-			this.route.travel();
-		} else {
-			//Agent reached destination:
 			/** 
+			 * Null route means the agent is inside a building.
+			 * 
 			 * Start counting the time Agent is at location
 			 * so we can use this for the infectiousness calculation
 			 * when the agent leaves the location
 			 *  **/
 			this.timeSpentInLocation++;
+			
+		} else if (!this.route.atDestination()) {
+			//Agent on the way
+			this.route.travel();
+		} else {
+			//Agent reached destination. Delete the route:
+			this.route = null;
 		}
 
 	} // step()
 
+	/** 
+	 * Calculate the infectiousness of whatever building
+	 * the agent just left, to calculate the agent's odds
+	 * of being infected
+	 */
+	public double calcInfectiousRate() {
+		double result = 0;
+		
+		return result;
+	}
+
+	
 	/**
 	 * Find the next building to go to based on person's
 	 * agenda. Temporarily replace AgendaFactory
