@@ -1,16 +1,5 @@
 /*
 ©Copyright 2012 Nick Malleson
-This file is part of RepastCity.
-
-RepastCity is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-RepastCity is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with RepastCity.  If not, see <http://www.gnu.org/licenses/>.
@@ -35,12 +24,23 @@ public class DefaultAgent implements IAgent {
 
 	private static Logger LOGGER = Logger.getLogger(DefaultAgent.class.getName());
 
+	/*
 	private IAgent mother = null;
 	private IAgent father = null;
 	private IAgent child1 = null;
 	private IAgent child2 = null;
 	private IAgent sibling = null;
 	private IAgent partner = null;
+	*/
+	
+	/* FAMILY */
+	private int mother = -1;
+	private int father = -1;
+	private int child1 = -1;
+	private int child2 = -1;
+	private int sibling = -1;
+	private int partner = -1;
+	
 	
 	private double timeSpentInLocation = 0;
 
@@ -85,6 +85,37 @@ public class DefaultAgent implements IAgent {
 
 	@Override
 	public void step() throws Exception {
+		/** DEBUG **
+		if ((this.getType() == GlobalVars.P_CHILD) || (this.getType() == GlobalVars.P_TEEN)) {
+			System.out.println("My ID is " + this.getID());
+			System.out.println("My father's ID is " + this.getFather());
+			int ch1 = GlobalVars.popListAdult.get(this.getFather()).getChild1();
+			int ch2 = GlobalVars.popListAdult.get(this.getFather()).getChild2();
+			
+			// get child object:
+			IAgent ch1obj = GlobalVars.popListChild.get(ch1);
+			IAgent ch2obj = GlobalVars.popListChild.get(ch2);
+			if (ch1obj != null) {
+				System.out.println("Father's child 1: " + ch1obj.getID());
+			}
+			if (ch1obj != null) {
+				System.out.println("Father's child 2: " + ch2obj.getID());
+			}
+			if (ch1obj.equals(this)) {
+				System.out.println("I am child 1!");
+			} else if (ch2obj.equals(this)) {
+				System.out.println("I am child 2!");
+			} else {
+				System.out.println("I am neither of the children.");
+			}
+			
+			System.exit(0);
+		}
+		/** END DEBUG **/
+		
+		
+		
+		
 		/** CHECK TIME OF DAY **/
 		double theTime = BigDecimal.valueOf(ContextManager.realTime).
 		        round(new MathContext(5,RoundingMode.HALF_UP)).doubleValue();
@@ -129,7 +160,7 @@ public class DefaultAgent implements IAgent {
 	 * the agent just left, to calculate the agent's odds
 	 * of being infected
 	 */
-	public double calcInfectiousRate() {
+	public double calcInfectiousness() {
 		double result = 0;
 		
 		return result;
@@ -149,16 +180,22 @@ public class DefaultAgent implements IAgent {
 			// EVERYONE GOES TO WORK/KINDERGARDEN/SCHOOL 
 			if (currTime == 9.0) { // 09:00
 				nextPlace = this.workplace;
-				nextPlaceStr = "Work";
+				if (this.getType() == GlobalVars.P_ADULT) {
+					nextPlaceStr = "Work";
+				} else if (this.getType() == GlobalVars.P_TEEN) {
+					nextPlaceStr = "School";
+				} else if (this.getType() == GlobalVars.P_CHILD) {
+					nextPlaceStr = "Kindergarten";
+				}
 			}
+			
 			if(this.getType() == GlobalVars.P_CHILD){
 				if(currTime == 18.0){
 					nextPlace = this.home;
 					nextPlaceStr = "Home";
 				}
 				
-			}
-			if (this.getType() == GlobalVars.P_ADULT) {
+			} else if (this.getType() == GlobalVars.P_ADULT) {
 				if (currTime == 17.0) { // 17:00
 					nextPlace = this.home;
 					nextPlaceStr = "Home";
@@ -166,7 +203,7 @@ public class DefaultAgent implements IAgent {
 				if (this.isHasChildren() == false) {
 					if (currTime == 19.5) { // 19:30
 						nextPlace = findBuilding(GlobalVars.ACT_MALL);
-						nextPlaceStr = "Mall";
+						nextPlaceStr = "Evening Drinks!";
 					} else if (currTime == 23.0) { // 23:00
 						nextPlace = this.home;
 						nextPlaceStr = "Home";
@@ -221,12 +258,15 @@ public class DefaultAgent implements IAgent {
 	}
 
 	
-	private boolean hasChildren() {
+/*
+ * 	private boolean hasChildren() {
+
 		if ((this.child1 != null) || (this.child2 != null)) {
 			return true;
 		}
 		return false;
 	}
+*/
 	
 	@Override
 	public void setType(int type) {
@@ -236,25 +276,6 @@ public class DefaultAgent implements IAgent {
 	@Override
 	public int getType() {
 		return this.agentType;
-	}
-
-	@Override
-	public void setMother(IAgent mom) {
-		this.mother = mom;
-	}
-
-	@Override
-	public void setFather(IAgent dad) {
-		this.father = dad;
-	}
-	
-	@Override
-	public IAgent getMother() {
-		return this.mother;
-	}
-	
-	public IAgent getFather() {
-		return this.father;
 	}
 
 	/**
@@ -329,11 +350,79 @@ public class DefaultAgent implements IAgent {
 		return id;
 	}
 
+	@Override
 	public void setID(int id) {
 		this.id = id;
 	}
 
+	/**
+	 * FAMILY METHODS
+	 */
+	@Override
+	public void setPartner(int pIndex) {
+		this.partner = pIndex;
+	}
+	
+	@Override
+	public int getPartner() {
+		return this.partner;
+	}
+	
+	@Override
+	public void setFather(int pIndex) {
+		this.father = pIndex;
+	}
+	
+	@Override
+	public int getFather() {
+		return this.father;
+	}
 
+	@Override
+	public void setMother(int pIndex) {
+		this.mother = pIndex;
+	}
+	
+	@Override
+	public int getMother() {
+		return this.mother;
+	}
+
+
+	
+	@Override
+	public void setSibling(int pIndex) {
+		this.sibling = pIndex;
+	}
+	
+	@Override
+	public int getSibling() {
+		return this.sibling;
+	}
+
+	@Override
+	public void setChild1(int pIndex) {
+		this.child1 = pIndex;
+	}
+	
+	@Override
+	public int getChild1() {
+		return this.child1;
+	}
+
+	
+	@Override
+	public void setChild2(int pIndex) {
+		this.child2 = pIndex;
+	}
+	
+	@Override
+	public int getChild2() {
+		return this.child2;
+	}
+	
+	
+/*
 	@Override
 	public void setSibling(IAgent sibling) {
 		this.sibling = sibling;
@@ -371,7 +460,8 @@ public class DefaultAgent implements IAgent {
 	public void setChild2(IAgent child) {
 		this.child2 = child;
 	}
-
+*/
+	
 	public boolean isHasChildren() {
 		return hasChildren;
 	}

@@ -1,16 +1,6 @@
 /*©Copyright 2012 Nick Malleson
 This file is part of RepastCity.
 
-RepastCity is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-RepastCity is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
 You should have received a copy of the GNU General Public License
 along with RepastCity.  If not, see <http://www.gnu.org/licenses/>.*/
 
@@ -30,79 +20,7 @@ import repastcity3.main.ContextManager;
 import repastcity3.main.GlobalVars;
 import repastcity3.main.MODEL_PARAMETERS;
 
-/**
- * Create agents. There are three methods that can be used to create agents: randomly create a number of agents, create
- * agents from a point shapefile or create a certain number of agents per neighbourhood specified in an area shapefile.
- * 
- * <P>
- * The method to use is specified by the 'agent_definition' parameter in <code>parameters.xml</code>. The parameter
- * takes the following form:
- * </P>
- * 
- * <pre>
- * {@code
- * <method>:<definition>
- * }
- * </pre>
- * 
- * <P>
- * where method and can be one of the following:
- * </P>
- * 
- * <ul>
- * <li>
- * 
- * <pre>
- * {@code random:<num_agents>}
- * </pre>
- * 
- * Create 'num_agents' agents in randomly chosen houses. The agents are of type <code>DefaultAgent</code>. For example,
- * this will create 10 agents in randomly chosen houses: '<code>random:1</code>'. See the
- * <code>createRandomAgents</code> function for implementation details.</li>
- * 
- * <li>
- * 
- * <pre>
- * {@code point:<filename>%<agent_class>}
- * </pre>
- * 
- * Create agents from the given point shapefile (one agent per point). If a point in the agent shapefile is within a
- * building object then the agent's home will be set to that building. The type of the agent can be given in two ways:
- * <ol>
- * <li>The 'agent_class' parameter can be used - this is the fully qualified (e.g. including package) name of a class
- * that will be used to create all the agents. For example the following will create instances of <code>MyAgent</code>
- * at each point in the shapefile '<code>point:data/my_shapefile.shp$my_package.agents.MyAgent</code>'.</li>
- * <li>A String column in the input shapefile called 'agent_type' provides the class of the agents. IIn this manner
- * agents of different types can be created from the same input. For example, the following will read the shapefile and
- * look at the values in the 'agent_type' column to create agents: '<code>point:data/my_shapefile.shp</code>' (note that
- * unlike the previous method there is no '$').</li>
- * </ol>
- * 
- * See the <code>createPointAgents</code> function for implementation details.
- * 
- * <li>
- * 
- * <pre>
- * {@code area:<filename>$BglrC1%<agent_class1>$ .. $BglrC5%<agent_class5>}
- * </pre>
- * 
- * Create agents from the given areas shapefile. Up to five different types of agents can be created. Columns in the
- * shapefile specify how many agents of each type to create per area and the agents created are randomly assigned to
- * houses withing their area. The columns names must follow the format 'BglrCX' where 1 <= X <= 5. For example the
- * following string:<br>
- * 
- * <pre>
- * {@code area:area.shp$BglrC1%BurglarAgent$BglrC2%EmployedAgent}
- * </pre>
- * 
- * will read the <code>area.shp</code> and, for each area, create a number of <code>BurglarAgent</code> and
- * <code>EmployedAgent</code> agents in each area, the number being specied by columns called <code>BglrC1</code> and
- * <code>BglrC2</code> respectively. See the <code>createAreaAgents</code> function for implementation details.</li>
- * </ul>
- * 
- * @author Nick Malleson
- * @see DefaultAgent
- */
+
 public class AgentFactory {
 
 	private static Logger LOGGER = Logger.getLogger(AgentFactory.class.getName());
@@ -164,13 +82,6 @@ public class AgentFactory {
 		// Check the definition is as expected, in this case it should be a number
 
 		int numAgents = -1;
-/*
-		try {
-			numAgents = Integer.parseInt(this.definition);
-		} catch (NumberFormatException ex) {
-			throw new AgentCreationException("Using " + this.methodToUse + " method to create "
-					+ "agents but cannot convert " + this.definition + " into an integer.");
-		}*/
 		// The definition has been parsed OK, no can either stop or create the agents
 		if (dummy) {
 			return;
@@ -180,20 +91,16 @@ public class AgentFactory {
 		
 		/** Choose 350 Random Houses as Homes **/
 		int totalNumOfHomes = 350;
-		int homesCreated = 0;
-		int adultsCreated = 0;
 		int totalNumAdults = 600;
+		int totalNumAdultsSingle = 100;
+		
+		int homesCreated = 0, adultsCreated = 0, teensCreated = 0;
 		int totalChildrenCreated = 0;
-		int teensCreated = 0;
-		//set agendas
-//		AgendaFactory adultAgenda = new AgendaFactory(0);
-//		AgendaFactory childAgenda = new AgendaFactory(5);
-//		AgendaFactory teenAgenda = new AgendaFactory(10);
 		
 
 		Iterator<Building> i = ContextManager.buildingContext.getRandomObjects(Building.class, totalNumOfHomes)
 					.iterator();
-			while (i.hasNext() && homesCreated < totalNumOfHomes) {
+			while (i.hasNext()) { // && homesCreated < totalNumOfHomes) {
 				/** 		**/
 				/** need something here to make sure houses are unique (not repeating random) **/
 				/** 		**/
@@ -201,135 +108,167 @@ public class AgentFactory {
 				homesCreated++;
 				/** Create Adult Agents & Assign to Houses **/
 				/** ====================================== **/
-				if (adultsCreated < 100) { // add 100 adults
+				System.out.println("----");
+				System.out.println("New Home Created (#" + homesCreated + ")");
+				System.out.println("----");
+				if (GlobalVars.popListAdult.size() <= totalNumAdultsSingle) { 
+					//add single adults
 					/** 100 Single Adults (1 per house) **/
-					IAgent singlePerson = new DefaultAgent(); // Create a new agent
-					singlePerson.setHome(b); // Tell the agent where it lives
-					singlePerson.setType(0);
+					IAgent person = new DefaultAgent(); // Create a new agent
+					
+					// Add to global population list:
+					GlobalVars.popListAdult.add(person);
+					int latestPersonIndex = GlobalVars.popListAdult.size()-1;
 
-					b.addAgent(singlePerson); // Tell the building that the agent lives there
-					ContextManager.addAgentToContext(singlePerson); // Add the agent to the context
-					// Finally move the agent to the place where it lives.
-					ContextManager.moveAgent(singlePerson, ContextManager.buildingProjection.getGeometry(b).getCentroid());
-					adultsCreated++;
-				} else { //add the couples
-					/** 500 Married Adults (2 per house) **/
-					// Create a new agent
-					IAgent coupleMama = new DefaultAgent(); 
-					IAgent coupleDaddy = new DefaultAgent(); 
-					
-					// Tell the agent where it lives
-					coupleMama.setHome(b); 
-					coupleDaddy.setHome(b); 
-					// Set Agent type
-					coupleMama.setType(0);
-					coupleDaddy.setType(0);
-					
-//					coupleMama.setAgenda(adultAgenda);
-//					coupleDaddy.setAgenda(adultAgenda);
-					
-					//connect families
-					coupleMama.setPartner(coupleDaddy);
-					coupleDaddy.setPartner(coupleMama);
-					
+
+					// Set Person Variables:
+					GlobalVars.popListAdult.get(latestPersonIndex).setID(latestPersonIndex);
+					GlobalVars.popListAdult.get(latestPersonIndex).setHome(b);
+					GlobalVars.popListAdult.get(latestPersonIndex).setType(GlobalVars.P_ADULT);
+
 					// Tell the building that the agent lives there
-					b.addAgent(coupleMama); 
-					b.addAgent(coupleDaddy); 
-					// Add the agent to the context
-					ContextManager.addAgentToContext(coupleMama); 
-					ContextManager.addAgentToContext(coupleDaddy); 
-					// Finally move the agent to the place where it lives.
-					ContextManager.moveAgent(coupleMama, ContextManager.buildingProjection.getGeometry(b).getCentroid());
-					ContextManager.moveAgent(coupleDaddy, ContextManager.buildingProjection.getGeometry(b).getCentroid());
-					adultsCreated = adultsCreated + 2;
-					/** ADD CHILDREN **/
-					if (totalChildrenCreated < 200) { 
-						/** 100 couples with 2 children **/
-						IAgent child1 = new DefaultAgent(); 
-						IAgent child2 = new DefaultAgent(); 
-						
-						child1.setType(5); // child
-						child2.setType(10); // teenager
-						
-						child1.setHome(b);
-						child2.setHome(b);
-						//connect families:
-						child1.setFather(coupleDaddy);
-						child1.setMother(coupleMama);
-						child2.setFather(coupleDaddy);
-						child2.setMother(coupleMama);
-						
-						coupleMama.setChild1(child1);
-						coupleMama.setChild2(child2);
-						coupleDaddy.setChild1(child1);
-						coupleDaddy.setChild2(child2);
-						
-						child1.setSibling(child2);
-						child2.setSibling(child1);
+					b.addAgent(GlobalVars.popListAdult.get(latestPersonIndex)); 
 
-						// Tell the building that the agent lives there
-						b.addAgent(child1); 
-						b.addAgent(child2); 
-						// Add the agent to the context
-						ContextManager.addAgentToContext(child1); 
-						ContextManager.addAgentToContext(child2); 
-						// Finally move the agent to the place where it lives.
-						ContextManager.moveAgent(child1, ContextManager.buildingProjection.getGeometry(b).getCentroid());
-						ContextManager.moveAgent(child2, ContextManager.buildingProjection.getGeometry(b).getCentroid());
-						
-						teensCreated++;
-						
-						totalChildrenCreated = totalChildrenCreated + 2;
-					} else if ((totalChildrenCreated >= 200) && (totalChildrenCreated < 400)) {
-						/** 200 couples with 1 child **/
-						IAgent child = new DefaultAgent(); 
-						
-						if (teensCreated < 200) {
-							child.setType(10); //teenager
-							//set agenda
-//							child.setAgenda(teenAgenda);
-							teensCreated++;
-						} else {
-							child.setType(5); //child
-							//set agenda
-//							child.setAgenda(childAgenda);
-						}
-						child.setHome(b);
+					// Get Person in Context:
+					ContextManager.addAgentToContext(GlobalVars.popListAdult.get(latestPersonIndex)); // Add the agent to the context
+					ContextManager.moveAgent(GlobalVars.popListAdult.get(latestPersonIndex), ContextManager.buildingProjection.getGeometry(b).getCentroid());
+					
+					System.out.println("New Adult Created, popListAdult id: " + latestPersonIndex);
+				} else {
+					//Add the rest of the adults as couples
+					
+					/** MAMA **/
+					IAgent pMama = new DefaultAgent(); // Create a new agent
+					GlobalVars.popListAdult.add(pMama);
+					int mamaIndex = GlobalVars.popListAdult.size()-1;
+					/** DADDY **/
+					IAgent pDaddy = new DefaultAgent(); // Create a new agent
+					GlobalVars.popListAdult.add(pDaddy);
+					int daddyIndex = GlobalVars.popListAdult.size()-1;
+					
+					System.out.println("New Couple:");
+					System.out.println("	Mama, popListAdult id: " + mamaIndex);
+					System.out.println("	Daddy, popListAdult id: " + daddyIndex);
 
-						//connect families:
-						child.setMother(coupleMama);
-						child.setFather(coupleDaddy);
+					// Set Person Variables:
+					GlobalVars.popListAdult.get(mamaIndex).setHome(b);
+					GlobalVars.popListAdult.get(mamaIndex).setID(mamaIndex);
+					GlobalVars.popListAdult.get(mamaIndex).setType(GlobalVars.P_ADULT);
+					
+					GlobalVars.popListAdult.get(daddyIndex).setHome(b);
+					GlobalVars.popListAdult.get(daddyIndex).setID(daddyIndex);
+					GlobalVars.popListAdult.get(daddyIndex).setType(GlobalVars.P_ADULT);
 
-						coupleMama.setChild1(child);
-						coupleDaddy.setChild1(child);
-						
-						
-						b.addAgent(child); 
-						ContextManager.addAgentToContext(child); 
-						ContextManager.moveAgent(child, ContextManager.buildingProjection.getGeometry(b).getCentroid());
-						
-						totalChildrenCreated++;
+					// Connect agents to their home:
+					b.addAgent(GlobalVars.popListAdult.get(mamaIndex)); 
+					b.addAgent(GlobalVars.popListAdult.get(daddyIndex)); 
+
+					// Marriage:
+					GlobalVars.popListAdult.get(mamaIndex).setPartner(daddyIndex);
+					GlobalVars.popListAdult.get(daddyIndex).setPartner(mamaIndex);
+					
+					// Get Couple in Context:
+					ContextManager.addAgentToContext(GlobalVars.popListAdult.get(mamaIndex)); // Add the agent to the context
+					ContextManager.moveAgent(GlobalVars.popListAdult.get(mamaIndex), ContextManager.buildingProjection.getGeometry(b).getCentroid());
+					ContextManager.addAgentToContext(GlobalVars.popListAdult.get(daddyIndex)); // Add the agent to the context
+					ContextManager.moveAgent(GlobalVars.popListAdult.get(daddyIndex), ContextManager.buildingProjection.getGeometry(b).getCentroid());
+					
+					/** ADD OFFSPRING **/
+					if (GlobalVars.popListChild.size() <= 200) {
+							//Set the first 200 children as 1 child in household
+							
+							IAgent child = new DefaultAgent(); // Create a new agent
+							child.setHome(b);
+							child.setFather(daddyIndex);
+							child.setMother(mamaIndex);
+							
+							int childIndex = -1;
+							if (GlobalVars.popListChild.size() <= 100) {
+								//child
+								child.setType(GlobalVars.P_CHILD);
+							} else {
+								//teen
+								child.setType(GlobalVars.P_TEEN);
+							}
+							// Add to global population list:
+							GlobalVars.popListChild.add(child);
+							childIndex = GlobalVars.popListChild.size()-1;
+	
+							GlobalVars.popListChild.get(childIndex).setPartner(childIndex);
+							// Tell the building that the agent lives there
+							b.addAgent(GlobalVars.popListChild.get(childIndex)); 
+	
+							// Get Person in Context:
+							ContextManager.addAgentToContext(GlobalVars.popListChild.get(childIndex)); // Add the agent to the context
+							ContextManager.moveAgent(GlobalVars.popListChild.get(childIndex), ContextManager.buildingProjection.getGeometry(b).getCentroid());
+							//add child to parents:
+							GlobalVars.popListAdult.get(mamaIndex).setChild1(childIndex);
+							GlobalVars.popListAdult.get(daddyIndex).setChild1(childIndex);
+							System.out.println("	CHILD:");
+							System.out.println("		popListChild id: " + childIndex);
+							
+					} else if ((GlobalVars.popListChild.size() > 200) && (GlobalVars.popListChild.size() <= 400)) { 
+							//Set 200 children as 2 in household
+							IAgent child1 = new DefaultAgent(); // Create a new agent
+							IAgent child2 = new DefaultAgent(); // Create a new agent
+							
+							child1.setHome(b);
+							child1.setFather(daddyIndex);
+							child1.setMother(mamaIndex);
+							child1.setType(GlobalVars.P_CHILD);
+							GlobalVars.popListChild.add(child1);
+							int child1Index = GlobalVars.popListChild.size()-1;
+							
+							child2.setHome(b);
+							child2.setFather(daddyIndex);
+							child2.setMother(mamaIndex);
+							child2.setType(GlobalVars.P_TEEN);
+							GlobalVars.popListChild.add(child2);
+							int child2Index = GlobalVars.popListChild.size()-1;
+	
+							//add children to parents:
+							GlobalVars.popListAdult.get(mamaIndex).setChild1(child1Index);
+							GlobalVars.popListAdult.get(daddyIndex).setChild1(child1Index);
+							GlobalVars.popListAdult.get(mamaIndex).setChild2(child2Index);
+							GlobalVars.popListAdult.get(daddyIndex).setChild2(child2Index);
+							GlobalVars.popListAdult.get(mamaIndex).setHasChildren(true);
+							GlobalVars.popListAdult.get(daddyIndex).setHasChildren(true);
+							
+							GlobalVars.popListChild.get(child1Index).setSibling(child2Index);
+							GlobalVars.popListChild.get(child2Index).setSibling(child1Index);
+							
+							GlobalVars.popListChild.get(child1Index).setID(child1Index);
+							GlobalVars.popListChild.get(child2Index).setID(child2Index);
+							// Tell the building that the agent lives there
+							b.addAgent(GlobalVars.popListChild.get(child1Index)); 
+							b.addAgent(GlobalVars.popListChild.get(child2Index)); 
+	
+							// Get Person in Context:
+							ContextManager.addAgentToContext(GlobalVars.popListChild.get(child1Index)); // Add the agent to the context
+							ContextManager.moveAgent(GlobalVars.popListChild.get(child1Index), ContextManager.buildingProjection.getGeometry(b).getCentroid());
+	
+							ContextManager.addAgentToContext(GlobalVars.popListChild.get(child2Index)); // Add the agent to the context
+							ContextManager.moveAgent(GlobalVars.popListChild.get(child2Index), ContextManager.buildingProjection.getGeometry(b).getCentroid());
+							System.out.println("	CHILD:");
+							System.out.println("		> #1 popListChild id: " + child1Index);
+							System.out.println("		> #2 popListChild id: " + child2Index);
 					}
-				}
+					
+				} // end if 'single adults'
 				
-
 			} //end while i.hasNext() (buildings)
 //		} // end while homesCreated < totalNumOfHomes
-		LOGGER.info("DONE. Created " + adultsCreated + " adults and " + totalChildrenCreated + " children in " + homesCreated + " homes.");
-		
+		LOGGER.info("DONE. Created " + GlobalVars.popListAdult.size() + " adults and " + GlobalVars.popListChild.size() + " children in " + homesCreated + " homes.");	
 	}
+
 	
+	/*** I HAD TO COMMENT OUT OUR TEST 
+	 * there were too many errors. We'll rewrite it later  */
+/*	
 	private void createSanemoriTestAgents(boolean dummy) throws AgentCreationException {
 		// Check the definition is as expected, in this case it should be a number
 
 		int numAgents = -1;
-/*
-		try {
-			numAgents = Integer.parseInt(this.definition);
-		} catch (NumberFormatException ex) {
-			throw new AgentCreationException("Using " + this.methodToUse + " method to create "
-					+ "agents but cannot convert " + this.definition + " into an integer.");
-		}*/
 		// The definition has been parsed OK, no can either stop or create the agents
 		if (dummy) {
 			return;
@@ -337,7 +276,7 @@ public class AgentFactory {
 		
 		LOGGER.info("Creating " + numAgents + " agents using SanemoriTest(" + this.methodToUse + ") method.");
 		
-		/** Choose 350 Random Houses as Homes **/
+		/** Choose 350 Random Houses as Homes 
 		int totalNumOfHomes = 7;
 		int homesCreated = 0;
 		int adultsCreated = 0;
@@ -349,15 +288,15 @@ public class AgentFactory {
 		Iterator<Building> i = ContextManager.buildingContext.getRandomObjects(Building.class, totalNumOfHomes)
 					.iterator();
 			while (i.hasNext() && homesCreated < totalNumOfHomes) {
-				/** 		**/
+				/** 		**
 				/** need something here to make sure houses are unique (not repeating random) **/
-				/** 		**/
+				/** 		
 				Building b = i.next(); // Find a building
 				homesCreated++;
-				/** Create Adult Agents & Assign to Houses **/
-				/** ====================================== **/
+				/** Create Adult Agents & Assign to Houses *
+				/** ====================================== *
 				if (adultsCreated < 3) { // add 100 adults
-					/** 100 Single Adults (1 per house) **/
+					/** 100 Single Adults (1 per house) **
 					IAgent singlePerson = new DefaultTestAgent();
 					
 					System.out.println("Agent "+singlePerson.getID()+ " is created as single adult");
@@ -373,7 +312,7 @@ public class AgentFactory {
 					singleones = adultsCreated;
 					System.out.println(singleones+ " single agents created ");
 				} else { //add the couples
-					/** 500 Married Adults (2 per house) **/
+					/** 500 Married Adults (2 per house) **
 					// Create a new agent
 					IAgent coupleMama = new DefaultTestAgent();
 					System.out.println("Agent "+coupleMama.getID()+ " is created as a mother");
@@ -401,9 +340,9 @@ public class AgentFactory {
 					System.out.println((adultsCreated-singleones)+ " more agents created ");
 					System.out.println(adultsCreated+ " total adult agents created ");
 
-					/** ADD CHILDREN **/
+					/** ADD CHILDREN **
 					if (totalChildrenCreated < 4) { 
-						/** 100 couples with 2 children **/
+						/** 100 couples with 2 children **
 						IAgent child1 = new DefaultTestAgent(); 
 						System.out.println("Agent "+child1.getID()+ " is created as a little kid!!");
 
@@ -452,7 +391,7 @@ public class AgentFactory {
 
 						totalChildrenCreated = totalChildrenCreated + 2;
 					} else if ((totalChildrenCreated >= 4) && (totalChildrenCreated < 7)) {
-						/** 200 couples with 1 child **/
+						/** 200 couples with 1 child **
 						IAgent child = new DefaultTestAgent(); 
 						System.out.println("Agent "+child.getID()+ " is created as a child since the total number of children is btwn 4-7");
 
@@ -497,6 +436,10 @@ public class AgentFactory {
 		LOGGER.info("DONE. Created " + adultsCreated + " adults and " + totalChildrenCreated + " children in " + homesCreated + " homes.");
 		
 	}
+
+*/	
+	
+	
 	
 	/**
 	 * Create a number of in randomly chosen houses. If there are more agents than houses then some houses will have
@@ -645,7 +588,7 @@ public class AgentFactory {
 		AREA_FILE("test", new CreateAgentMethod() {
 			@Override
 			public void createagents(boolean b, AgentFactory af) throws AgentCreationException {
-				af.createSanemoriTestAgents(b);
+//				af.createSanemoriTestAgents(b);
 			}
 		});
 

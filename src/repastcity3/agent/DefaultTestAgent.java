@@ -18,12 +18,24 @@ public class DefaultTestAgent implements IAgent {
 
 	private static Logger LOGGER = Logger.getLogger(DefaultTestAgent.class.getName());
 
+	/*
 	private IAgent mother = null;
 	private IAgent father = null;
 	private IAgent child1 = null;
 	private IAgent child2 = null;
 	private IAgent sibling = null;
 	private IAgent partner = null;
+	*/
+	
+	/* FAMILY */
+	private int mother = -1;
+	private int father = -1;
+	private int child1 = -1;
+	private int child2 = -1;
+	private int sibling = -1;
+	private int partner = -1;
+	
+	
 	
 	private boolean hasChildren = false;
 	
@@ -205,43 +217,6 @@ public class DefaultTestAgent implements IAgent {
 		return this.agentType;
 	}
 
-	@Override
-	public void setMother(IAgent mom) {
-		this.mother = mom;
-	}
-
-	@Override
-	public void setFather(IAgent dad) {
-		this.father = dad;
-	}
-	
-	@Override
-	public IAgent getMother() {
-		return this.mother;
-	}
-	
-	public IAgent getFather() {
-		return this.father;
-	}
-	@Override
-	public void setSibling(IAgent sibling) {
-		this.sibling = sibling;
-	}
-
-	@Override
-	public void setPartner(IAgent partner) {
-		this.partner = partner;
-	}
-
-	@Override
-	public IAgent getSibling() {
-		return this.sibling;
-	}
-
-	@Override
-	public IAgent getPartner() {
-		return this.partner;
-	}
 	/**
 	 * There will be no inter-agent communication so these agents can be executed simulataneously in separate threads.
 	 */
@@ -315,26 +290,81 @@ public class DefaultTestAgent implements IAgent {
 		// TODO Auto-generated method stub
 		return this.id;
 	}
+	@Override
+	public void setID(int id) {
+		this.id = id;
+	}
+
+
+	/**
+	 * FAMILY METHODS
+	 */
+	@Override
+	public void setPartner(int pIndex) {
+		this.partner = pIndex;
+	}
 	
 	@Override
-	public IAgent getChild1() {
+	public int getPartner() {
+		return this.partner;
+	}
+	
+	@Override
+	public void setFather(int pIndex) {
+		this.father = pIndex;
+	}
+	
+	@Override
+	public int getFather() {
+		return this.father;
+	}
+
+	@Override
+	public void setMother(int pIndex) {
+		this.mother = pIndex;
+	}
+	
+	@Override
+	public int getMother() {
+		return this.mother;
+	}
+
+
+	
+	@Override
+	public void setSibling(int pIndex) {
+		this.sibling = pIndex;
+	}
+	
+	@Override
+	public int getSibling() {
+		return this.sibling;
+	}
+
+	@Override
+	public void setChild1(int pIndex) {
+		this.child1 = pIndex;
+	}
+	
+	@Override
+	public int getChild1() {
 		return this.child1;
 	}
 
+	
 	@Override
-	public void setChild1(IAgent child) {
-		this.child1 = child;
+	public void setChild2(int pIndex) {
+		this.child2 = pIndex;
 	}
+	
 	@Override
-	public IAgent getChild2() {
+	public int getChild2() {
 		return this.child2;
 	}
-	@Override
-	public void setChild2(IAgent child) {
-		this.child2 = child;
-	}
 
-/*
+	
+	
+	/*
 	@Override
 	public void setAgenda(AgendaFactory agenda) {
 		this.myAgenda = agenda;

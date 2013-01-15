@@ -105,26 +105,26 @@ public interface IAgent {
 	 */
 	int getType();
 	int getID();
-	
+	void setID(int id);
 	/**
 	 * Set parents
 	 */
-	void setMother(IAgent person);
-	void setFather(IAgent person);
-	void setSibling(IAgent person);
-	void setPartner(IAgent person);
-	void setChild1(IAgent person);
-	void setChild2(IAgent person);
+	void setMother(int person);
+	void setFather(int person);
+	void setSibling(int person);
+	void setPartner(int person);
+	void setChild1(int person);
+	void setChild2(int person);
 	
 	/**
 	 * Get parents
 	 */
-	IAgent getMother();
-	IAgent getFather();
-	IAgent getSibling();
-	IAgent getPartner();
-	IAgent getChild1();
-	IAgent getChild2();
+	int getMother();
+	int getFather();
+	int getSibling();
+	int getPartner();
+	int getChild1();
+	int getChild2();
 	
 	boolean isHasChildren();
 	void setHasChildren(boolean hasChildren);

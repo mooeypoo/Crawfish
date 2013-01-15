@@ -18,6 +18,7 @@ along with RepastCity.  If not, see <http://www.gnu.org/licenses/>.
 
 package repastcity3.main;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
@@ -44,6 +45,10 @@ public abstract class GlobalVars {
 	public static final String BuildingsRoadsCoordsCache = "BuildingsRoadsCoordsCache";
 	public static final String BuildingsRoadsCache = "BuildingsRoadsCache";
 
+	/* Population Lists */
+	public static final ArrayList<IAgent> popListAdult = new ArrayList<IAgent>();
+	public static final ArrayList<IAgent> popListTeen = new ArrayList<IAgent>();
+	public static final ArrayList<IAgent> popListChild = new ArrayList<IAgent>();
 	
 	public static final int ACT_HOME = 0;
 	/** These are shapefile building definitions: **/
