@@ -79,20 +79,21 @@ public class DefaultAgent implements IAgent {
 //	private AgendaFactory myAgenda;
 	
 	public DefaultAgent() {
-		this.setID(uniqueID++);
+//		this.setID(uniqueID++);
 		this.workplace = createWorkplace();
 	}
 
 	@Override
 	public void step() throws Exception {
-		/** DEBUG **
-		if ((this.getType() == GlobalVars.P_CHILD) || (this.getType() == GlobalVars.P_TEEN)) {
+		/** DEBUG *
+		if ((this.getType() == GlobalVars.P_CHILD)) {
 			System.out.println("My ID is " + this.getID());
-			System.out.println("My father's ID is " + this.getFather());
-			int ch1 = GlobalVars.popListAdult.get(this.getFather()).getChild1();
-			int ch2 = GlobalVars.popListAdult.get(this.getFather()).getChild2();
-			
-			// get child object:
+			System.out.println("My mother's ID is " + this.getMother());
+			int ch1 = GlobalVars.popListAdult.get(this.getMother()).getChild1();
+			int ch2 = GlobalVars.popListAdult.get(this.getMother()).getChild2();
+			System.out.println("My Mother's Children: " + ch1 + " and " + ch2);
+		}
+/*			// get child object:
 			IAgent ch1obj = GlobalVars.popListChild.get(ch1);
 			IAgent ch2obj = GlobalVars.popListChild.get(ch2);
 			if (ch1obj != null) {

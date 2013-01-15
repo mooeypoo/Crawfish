@@ -46,9 +46,11 @@ public abstract class GlobalVars {
 	public static final String BuildingsRoadsCache = "BuildingsRoadsCache";
 
 	/* Population Lists */
-	public static final ArrayList<IAgent> popListAdult = new ArrayList<IAgent>();
-	public static final ArrayList<IAgent> popListTeen = new ArrayList<IAgent>();
-	public static final ArrayList<IAgent> popListChild = new ArrayList<IAgent>();
+	public static ArrayList<IAgent> popListAdult = new ArrayList<IAgent>();
+//	public static ArrayList<IAgent> popListTeen = new ArrayList<IAgent>();
+	public static ArrayList<IAgent> popListChild = new ArrayList<IAgent>();
+	
+	public static boolean isDebug = false;
 	
 	public static final int ACT_HOME = 0;
 	/** These are shapefile building definitions: **/
