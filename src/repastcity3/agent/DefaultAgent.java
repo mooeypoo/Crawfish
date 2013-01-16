@@ -286,12 +286,12 @@ public class DefaultAgent implements IAgent {
 	}
 	
 	@Override
-	public void setMyHealth(DiseaseStages st) {
+	public void setHealthStatus(DiseaseStages st) {
 		this.myHealthStatus = st;
 	}
 	
 	@Override
-	public DiseaseStages getMyHealth() {
+	public DiseaseStages getHealthStatus() {
 		return this.myHealthStatus;
 	}
 

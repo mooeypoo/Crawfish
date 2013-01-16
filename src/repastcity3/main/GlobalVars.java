@@ -65,7 +65,9 @@ public abstract class GlobalVars {
 	public static final int P_CHILD = 5;
 	public static final int P_TEEN = 10;
 	
-	public static int INITIAL_INFECTED;
+	public static int INITIAL_INFECTED_ADULTS;
+	public static int INITIAL_INFECTED_CHILDREN;
+	public static int INITIAL_INFECTED_TEENS;
 	
 	public static int NUM_OF_ADULTS;
 	

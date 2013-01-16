@@ -12,9 +12,12 @@ import java.util.List;
 import java.util.Random;
 import java.util.logging.Logger;
 
+import org.apache.commons.lang.StringUtils;
+
 import com.vividsolutions.jts.geom.Geometry;
 
 import repast.simphony.context.Context;
+import repastcity3.agent.IAgent.DiseaseStages;
 import repastcity3.environment.Building;
 import repastcity3.environment.GISFunctions;
 import repastcity3.environment.SpatialIndexManager;
@@ -28,13 +31,20 @@ public class AgentFactory {
 
 	private static Logger LOGGER = Logger.getLogger(AgentFactory.class.getName());
 
-	private static final double PERC_ADULTS_MARRIED = 0.75;
-	private static final double PERC_ADULTS_WCHILD = 0.8;
+	/** WE SHOULD ADD THESE TO THE PARAMETERS!!! **/
+	private static final int TOTAL_POPULATION_NUMBER = 1000; // This will be approximate (close enough)
+	private static final double PERC_ADULTS_MARRIED = 0.85; // 85% (out of all adults)
+	private static final double PERC_ADULTS_WCHILD = 0.8; 	// 80% (out of married adults)
+
+	private int initInfected_Adults 	= 10;	//GlobalVars.INITIAL_INFECTED_ADULTS;
+	private int initInfected_Teens 		= 5;	//GlobalVars.INITIAL_INFECTED_TEENS;
+	private int initInfected_Children 	= 5; 	//GlobalVars.INITIAL_INFECTED_CHILDREN;
+	/** ---------------------------------------- **/
+	
 	
 	/** The method to use when creating agents (determined in constructor). */
 	private AGENT_FACTORY_METHODS methodToUse;
 	
-	private int INIT_INFECTED = GlobalVars.INITIAL_INFECTED;
 
 	/** The definition of the agents - specific to the method being used */
 	//private String definition;
@@ -93,11 +103,11 @@ public class AgentFactory {
 		// The definition has been parsed OK, no can either stop or create the agents
 		if (dummy) {
 			return;
-		}
-		
+		}		
 		
 		/** PREPARE TO GIVE THE OPTION OF HOW MANY PEOPLE **/
-		int totalAdults = 1000; //GlobalVars.NUM_OF_ADULTS; // THIS WILL BE GIVEN AS A PARAM
+		double tempFix = (TOTAL_POPULATION_NUMBER * 0.25);
+		int totalAdults = (int) (TOTAL_POPULATION_NUMBER - tempFix);
 		/** **************************************************** **/
 		LOGGER.info("Creating " + totalAdults + " agents using Sanemori(" + this.methodToUse + ") method.");
 		
@@ -112,6 +122,8 @@ public class AgentFactory {
 		int count_people=0, count_WithChild=0, count_Children=0;
 		int count_Homes=0;
 		
+		this.debugOutput("building_type,building_id,parent1_id,parent2_id,child1_id,child2_id\n");
+
 		List<Building> blist = getBuildingListbyType(1, totalNumOfHomes);
 		Iterator<Building> i = blist.iterator();
 		while (i.hasNext() && count_Homes <= totalNumOfHomes) {
@@ -119,8 +131,9 @@ public class AgentFactory {
 			if (count_people <= adultsSingle) {
 				// Single People (25%)
 				int personIndex = this.addAdult(b);
+				this.debugOutput(b.getType()+","+b.hashCode()+","+personIndex+",,,");
 				count_people++;
-			} else if ((count_people > adultsSingle) && (count_people <= adultsCouple)) {
+			} else {//else if ((count_people > adultsSingle) && (count_people <= adultsCouple)) {
 				// Married People (75%), 2 at a time
 				int momIndex = this.addAdult(b);
 				int dadIndex = this.addAdult(b);
@@ -130,9 +143,10 @@ public class AgentFactory {
 
 				this.addPersonToContext(GlobalVars.popListAdult.get(momIndex), b);
 				this.addPersonToContext(GlobalVars.popListAdult.get(dadIndex), b);
+				this.debugOutput(b.getType()+","+b.hashCode()+","+momIndex+","+dadIndex+",");
 
 				/** ADD CHILDREN **/
-				if (count_people <= (adultsSingle + adultsWithChild)) { //with child
+				if (count_people < (adultsSingle + adultsWithChild)) { //with child
 					if (count_WithChild <= (adultsWithChild/2)) {
 						// ONE CHILD
 						Random randomGenerator = new Random(123987);
@@ -146,6 +160,7 @@ public class AgentFactory {
 						GlobalVars.popListAdult.get(dadIndex).setChildren(childIndex, -1);
 
 						this.addPersonToContext(GlobalVars.popListChild.get(childIndex), b);
+						this.debugOutput(childIndex+",");
 						count_Children++;
 					} else {
 						// TWO CHILDREN
@@ -160,6 +175,7 @@ public class AgentFactory {
 						
 						this.addPersonToContext(GlobalVars.popListChild.get(child1Index), b);
 						this.addPersonToContext(GlobalVars.popListChild.get(child2Index), b);
+						this.debugOutput(child1Index+","+child2Index);
 						count_Children = count_Children + 2;
 					}
 					count_WithChild = count_WithChild + 2;
@@ -169,128 +185,46 @@ public class AgentFactory {
 			}
 			
 			count_Homes++;
+			this.debugOutput("\n");
 		}
+		
+		//Make initial infected:
+		List<Integer> inf_Adult = getRandomAgents(GlobalVars.P_ADULT,initInfected_Adults);
+		List<Integer> inf_Teen = getRandomAgents(GlobalVars.P_TEEN,initInfected_Teens);
+		List<Integer> inf_Child = getRandomAgents(GlobalVars.P_CHILD,initInfected_Children);
+		int infectedCounter = 0, infAcounter=0, infTcounter=0, infCcounter=0;
+		
+		if (inf_Adult.size() > 0) {
+			for (int ind=0; ind<inf_Adult.size(); ind++) {
+				GlobalVars.popListAdult.get(ind).setHealthStatus(DiseaseStages.I);
+				infectedCounter++;
+				infAcounter++;
+			}
+		}
+		if (inf_Teen.size() > 0) {
+			for (int ind=0; ind<inf_Teen.size(); ind++) {
+				GlobalVars.popListChild.get(ind).setHealthStatus(DiseaseStages.I);
+				infectedCounter++;
+				infTcounter++;
+			}
+		}
+		if (inf_Child.size() > 0) {
+			for (int ind=0; ind<inf_Child.size(); ind++) {
+				GlobalVars.popListChild.get(ind).setHealthStatus(DiseaseStages.I);
+				infectedCounter++;
+				infCcounter++;
+			}
+		}
+//		Iterator<Building> i = pList.iterator();
+
+		
 		LOGGER.info("Done. Created " + count_people + " adults, and " + count_Children + " children.");
-		
+		LOGGER.info("There are "+infectedCounter+" initial infected: "+infAcounter+" Adults, "+infCcounter+ " Children, "+infTcounter +" Teens.");
 		
 	}
 
 
-			
-		
-	
-	
-	
-	/**
-	 * Create a number of in randomly chosen houses. If there are more agents than houses then some houses will have
-	 * more than one agent in them.
-	 * 
-	 * @param dummy
-	 *            Whether or not to actually create agents. If this is false then just check that the definition can be
-	 *            parsed.
-	 * @throws AgentCreationException
-	 */
-/*	private void createRandomAgents(boolean dummy) throws AgentCreationException {
-		// Check the definition is as expected, in this case it should be a number
-		int numAgents = -1;
-		try {
-			numAgents = Integer.parseInt(this.definition);
-		} catch (NumberFormatException ex) {
-			throw new AgentCreationException("Using " + this.methodToUse + " method to create "
-					+ "agents but cannot convert " + this.definition + " into an integer.");
-		}
-		// The definition has been parsed OK, no can either stop or create the agents
-		if (dummy) {
-			return;
-		}
 
-		// Create agents in randomly chosen houses. Use two while loops in case there are more agents
-		// than houses, so that houses have to be looped over twice.
-		LOGGER.info("Creating " + numAgents + " agents using " + this.methodToUse + " method.");
-		int agentsCreated = 0;
-		while (agentsCreated < numAgents) {
-			Iterator<Building> i = ContextManager.buildingContext.getRandomObjects(Building.class, numAgents)
-					.iterator();
-			while (i.hasNext() && agentsCreated < numAgents) {
-				Building b = i.next(); // Find a building
-				IAgent a = new DefaultAgent(); // Create a new agent
-				a.setHome(b); // Tell the agent where it lives
-				b.addAgent(a); // Tell the building that the agent lives there
-				ContextManager.addAgentToContext(a); // Add the agent to the context
-				// Finally move the agent to the place where it lives.
-				ContextManager.moveAgent(a, ContextManager.buildingProjection.getGeometry(b).getCentroid());
-				agentsCreated++;
-			}
-		}
-	}
-*/
-	/**
-	 * Read a shapefile and create an agent at each location. If there is a column called
-	 * 
-	 * @param dummy
-	 *            Whether or not to actually create agents. If this is false then just check that the definition can be
-	 *            parsed.
-	 * @throws AgentCreationException
-	 */
-/*	@SuppressWarnings("unchecked")
-	private void createPointAgents(boolean dummy) throws AgentCreationException {
-
-		// See if there is a single type of agent to create or should read a colum in shapefile
-		boolean singleType = this.definition.contains("$");
-
-		String fileName;
-		String className;
-		Class<IAgent> clazz;
-		if (singleType) {
-			// Agent class provided, can use the Simphony Shapefile loader to load agents of the given class
-
-			// Work out the file and class names from the agent definition
-			String[] split = this.definition.split("\\$");
-			if (split.length != 2) {
-				throw new AgentCreationException("There is a problem with the agent definition, I should be "
-						+ "able to split the definition into two parts on '$', but only split it into " + split.length
-						+ ". The definition is: '" + this.definition + "'");
-			}
-			 // (Need to append root data directory to the filename).
-			fileName = ContextManager.getProperty(GlobalVars.GISDataDirectory)+split[0];
-			className = split[1];
-			// Try to create a class from the given name.
-			try {
-				clazz = (Class<IAgent>) Class.forName(className);
-				GISFunctions.readAgentShapefile(clazz, fileName, ContextManager.getAgentGeography(), ContextManager
-						.getAgentContext());
-			} catch (Exception e) {
-				throw new AgentCreationException(e);
-			}
-		} else {
-			// TODO Implement agent creation from shapefile value;
-			throw new AgentCreationException("Have not implemented the method of reading agent classes from a "
-					+ "shapefile yet.");
-		}
-
-		// Assign agents to houses
-		int numAgents = 0;
-		for (IAgent a : ContextManager.getAllAgents()) {
-			numAgents++;
-			Geometry g = ContextManager.getAgentGeometry(a);
-			for (Building b : SpatialIndexManager.search(ContextManager.buildingProjection, g)) {
-				if (ContextManager.buildingProjection.getGeometry(b).contains(g)) {
-					b.addAgent(a);
-					a.setHome(b);
-				}
-			}
-		}
-
-		if (singleType) {
-			LOGGER.info("Have created " + numAgents + " of type " + clazz.getName().toString() + " from file "
-					+ fileName);
-		} else {
-			// (NOTE: at the moment this will never happen because not implemented yet.)
-			LOGGER.info("Have created " + numAgents + " of different types from file " + fileName);
-		}
-
-	}
-*/
 	private void createAreaAgents(boolean dummy) throws AgentCreationException {
 		throw new AgentCreationException("Have not implemented the createAreaAgents method yet.");
 	}
@@ -307,20 +241,7 @@ public class AgentFactory {
 				af.createSanemoriAgents(b);
 			}
 		}),
-/*		SANEMORI("sanemori", new CreateAgentMethod() {
-			@Override
-			public void createagents(boolean b, AgentFactory af) throws AgentCreationException {
-				af.createSanemoriAgents(b);
-			}
-		}),
-*/
-		/** Specify an agent shapefile, one agent will be created per point */
-	/*	POINT_FILE("point", new CreateAgentMethod() {
-			@Override
-			public void createagents(boolean b, AgentFactory af) throws AgentCreationException {
-				af.createPointAgents(b);
-			}
-		}),*/
+
 		/**
 		 * Specify the number of agents per area as a shapefile. Agents will be randomly assigned to houses within the
 		 * area.
@@ -375,6 +296,29 @@ public class AgentFactory {
 		}
 		
 		return bList;
+	}
+	
+	public List<Integer> getRandomAgents(int pType, int numOfRandElements) {
+		List<Integer> pList = new ArrayList<Integer>();
+		
+		if (pType == GlobalVars.P_ADULT) {
+			for (int i=0; i < numOfRandElements; i++) {
+				Random randomGenerator = new Random(123987);
+				int randInd = randomGenerator.nextInt(GlobalVars.popListAdult.size() - 1);
+				pList.add(randInd);
+			}
+		} else {
+			Random randomGenerator = new Random(123987);
+			int counter = 0;
+			while (counter < numOfRandElements) {
+				int randInd = randomGenerator.nextInt(GlobalVars.popListChild.size() - 1);
+				if (GlobalVars.popListChild.get(randInd).getType() == pType) {
+					pList.add(randInd);
+					counter++;
+				}
+			}
+		}
+		return pList;
 	}
 	
 	/** Add Person to List **/

@@ -77,8 +77,8 @@ public interface IAgent {
 		}
 	}
 	
-	public void setMyHealth(DiseaseStages st);
-	public DiseaseStages getMyHealth();
+	public void setHealthStatus(DiseaseStages st);
+	public DiseaseStages getHealthStatus();
 
 	public void setStayHome(Boolean yesno);
 	public Boolean getStayHome();

@@ -1,20 +1,22 @@
-Jan 15, 2013 10:01:25 PM repastcity3.main.ContextManager readProperties
+Jan 16, 2013 12:35:49 AM repastcity3.main.ContextManager readProperties
 FINE: Initialising properties from file .\repastcity.properties
-Jan 15, 2013 10:01:25 PM repastcity3.main.ContextManager build
+Jan 16, 2013 12:35:49 AM repastcity3.main.ContextManager build
 FINE: Configuring the environment with data from ./data/gis_data/york/
-Jan 15, 2013 10:01:25 PM repastcity3.main.ContextManager build
+Jan 16, 2013 12:35:51 AM repastcity3.main.ContextManager build
 FINER: Read 7797 buildings from ./data/gis_data/york/buildings.shp
-Jan 15, 2013 10:01:25 PM repastcity3.main.ContextManager build
+Jan 16, 2013 12:35:51 AM repastcity3.main.ContextManager build
 FINER: Read 1101 roads from ./data/gis_data/york/roads.shp
-Jan 15, 2013 10:01:25 PM repastcity3.main.ContextManager testEnvironment
+Jan 16, 2013 12:35:51 AM repastcity3.main.ContextManager testEnvironment
 FINE: Testing the environment
-Jan 15, 2013 10:01:25 PM repastcity3.main.ContextManager testEnvironment
+Jan 16, 2013 12:35:51 AM repastcity3.main.ContextManager testEnvironment
 FINE: The road network has 983 nodes and 1101 edges.
-Jan 15, 2013 10:01:25 PM repastcity3.main.ContextManager build
+Jan 16, 2013 12:35:51 AM repastcity3.main.ContextManager build
 INFO: Creating agents with the agent definition: 'crawfish_epidemic'
-Jan 15, 2013 10:01:25 PM repastcity3.agent.AgentFactory createSanemoriAgents
-INFO: Creating 1000 agents using Sanemori(crawfish_epidemic) method.
-Jan 15, 2013 10:01:28 PM repastcity3.agent.AgentFactory createSanemoriAgents
-INFO: Done. Created 751 adults, and 349 children.
-Jan 15, 2013 10:01:28 PM repastcity3.main.ContextManager createSchedule
+Jan 16, 2013 12:35:51 AM repastcity3.agent.AgentFactory createSanemoriAgents
+INFO: Creating 750 agents using Sanemori(crawfish_epidemic) method.
+Jan 16, 2013 12:35:53 AM repastcity3.agent.AgentFactory createSanemoriAgents
+INFO: Done. Created 751 adults, and 382 children.
+Jan 16, 2013 12:35:53 AM repastcity3.agent.AgentFactory createSanemoriAgents
+INFO: There are 21 initial infected: 11 Adults, 5 Children, 5 Teens.
+Jan 16, 2013 12:35:53 AM repastcity3.main.ContextManager createSchedule
 FINE: The single-threaded scheduler will be used.

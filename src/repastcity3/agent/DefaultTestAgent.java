@@ -9,6 +9,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import repast.simphony.random.RandomHelper;
+import repastcity3.agent.IAgent.DiseaseStages;
 import repastcity3.environment.Building;
 import repastcity3.environment.Route;
 import repastcity3.main.ContextManager;
@@ -266,14 +267,15 @@ public class DefaultTestAgent implements IAgent {
 	}
 	
 	@Override
-	public void setMyHealth(DiseaseStages st) {
+	public void setHealthStatus(DiseaseStages st) {
 		this.myHealthStatus = st;
 	}
 	
 	@Override
-	public DiseaseStages getMyHealth() {
+	public DiseaseStages getHealthStatus() {
 		return this.myHealthStatus;
 	}
+
 
 	@Override
 	public void setStayHome(Boolean yesno) {
