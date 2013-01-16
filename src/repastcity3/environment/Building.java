@@ -38,6 +38,7 @@ public class Building implements FixedGeography, Identified {
 	
 	/** A list of agents who live here */
 	private List<IAgent> agents;
+	private List<IAgent> agentsInBuilding;
 
 	/**
 	 * A unique identifier for buildings, usually set from the 'identifier' column in a shapefile
@@ -81,6 +82,23 @@ public class Building implements FixedGeography, Identified {
 		this.identifier = id;
 	}
 
+	public void agentIn(IAgent a) {
+		if (!this.agentsInBuilding.contains(a)) {
+			this.agentsInBuilding.add(a);
+			int ind = this.agentsInBuilding.size() - 1;
+		}
+	}
+	
+	public void agentOut(IAgent a) {
+		if (this.agentsInBuilding.contains(a)) {
+			this.agentsInBuilding.remove(a);
+		}
+	}
+	
+	public List<IAgent> getAgentsInside() {
+		return this.agentsInBuilding;
+	}
+	
 	public void addAgent(IAgent a) {
 		this.agents.add(a);
 	}

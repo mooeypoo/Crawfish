@@ -45,9 +45,12 @@ public abstract class GlobalVars {
 	public static final String BuildingsRoadsCoordsCache = "BuildingsRoadsCoordsCache";
 	public static final String BuildingsRoadsCache = "BuildingsRoadsCache";
 
+	public static double InfectionFactor = 0.1;
+
 	/* Population Lists */
 	public static ArrayList<IAgent> popListAdult = new ArrayList<IAgent>();
 	public static ArrayList<IAgent> popListChild = new ArrayList<IAgent>();
+	
 	
 	public static boolean isDebug = false;
 	

@@ -34,13 +34,11 @@ public class DefaultTestAgent implements IAgent {
 	private int child1 = -1;
 	private int child2 = -1;
 	private int sibling = -1;
-	private int partner = -1;
-	
+	private int partner = -1;	
 
 	
 	private boolean hasChildren = false;
 	
-
 	private double timeSpentInLocation = 0;
 
 	private double timeGotIntoLocation = -1.0;
@@ -81,7 +79,6 @@ public class DefaultTestAgent implements IAgent {
 	}
 
 	@Override
-//	public Building createWorkplace() {
 	public void createWorkplace() {
 		Building work = null;
 		if (this.getType() == GlobalVars.P_ADULT) { //adult

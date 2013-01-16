@@ -10,6 +10,7 @@ package repastcity3.agent;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import java.util.logging.Level;
@@ -94,6 +95,12 @@ public class DefaultAgent implements IAgent {
 		if ((theTime%0.5) == 0) {
 			Building nextDestBuilding = this.getNextAgendaItem(theTime);
 			if ((nextDestBuilding != null)) { //&& (!this.currentBuilding.equals(nextDestBuilding))) {
+				// Leaving towards new destination.
+				// Calculate infection rate:
+//				double infectiousness = calcInfectiousness(this.currentBuilding);
+//				System.out.println("INFECTIOUSNESS: " + infectiousness);
+				
+//				this.currentBuilding.agentOut(this);
 				this.route = new Route(this, nextDestBuilding.getCoords(), nextDestBuilding); // Create a route to work
 				this.currentBuilding = nextDestBuilding;
 			}
@@ -114,7 +121,9 @@ public class DefaultAgent implements IAgent {
 			this.route.travel();
 		} else {
 			//Agent reached destination. Delete the route:
-			LOGGER.info("	Agent " + this.getID() + "reached building: TYPE " + this.route.getDestinationBuilding().getType());
+//			LOGGER.info("	Agent " + this.getID() + " reached building: TYPE " + this.route.getDestinationBuilding().getType());
+//			this.currentBuilding.agentIn(this);
+			this.timeSpentInLocation = 0;
 			this.route = null;
 		}
 
@@ -125,9 +134,25 @@ public class DefaultAgent implements IAgent {
 	 * the agent just left, to calculate the agent's odds
 	 * of being infected
 	 */
-	public double calcInfectiousness() {
+	public double calcInfectiousness(Building b) {
 		double result = 0;
+		//count how many S/I people are in the building:
+		int allAgentsInBuilding =0;
+		int infectedAgentsInBuilding =0;
+		List<IAgent> allAg = b.getAgentsInside();
+		for (int i=0; i<allAg.size(); i++) {
+			if (allAg.get(i).getHealthStatus().isInfectious() == true) {
+				infectedAgentsInBuilding++;
+			}
+			allAgentsInBuilding++;
+		}
 		
+		//count time
+		if (infectedAgentsInBuilding > 0 && allAgentsInBuilding > 0) {
+			// the formula makes no sense.. I adapted it just to test, but
+			// we need to figure it out... (talk to me i'll explain)
+			result = GlobalVars.InfectionFactor * (infectedAgentsInBuilding * this.timeSpentInLocation) / allAgentsInBuilding;
+		}
 		return result;
 	}
 
@@ -199,7 +224,7 @@ public class DefaultAgent implements IAgent {
 			 * Make sure the time counter is back to zero
 			 */
 
-			this.timeSpentInLocation = 0;
+			//this.timeSpentInLocation = 0;
 			return nextPlace;
 		}
 	}
@@ -451,5 +476,13 @@ public class DefaultAgent implements IAgent {
 	public void setHasChildren(boolean hasChildren) {
 		this.hasChildren = hasChildren;
 	}
+	
+	
+	public void debugOutput(String out) {
+		if (GlobalVars.isDebug) {
+			System.out.print(out);
+		}
+	}
+
 
 }
