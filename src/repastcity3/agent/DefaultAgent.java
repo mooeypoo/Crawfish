@@ -79,57 +79,16 @@ public class DefaultAgent implements IAgent {
 //	private AgendaFactory myAgenda;
 	
 	public DefaultAgent() {
-//		this.setID(uniqueID++);
 		this.workplace = createWorkplace();
 	}
 
 	@Override
 	public void step() throws Exception {
-		/** DEBUG *
-		if ((this.getType() == GlobalVars.P_CHILD)) {
-			System.out.println("My ID is " + this.getID());
-			System.out.println("My mother's ID is " + this.getMother());
-			int ch1 = GlobalVars.popListAdult.get(this.getMother()).getChild1();
-			int ch2 = GlobalVars.popListAdult.get(this.getMother()).getChild2();
-			System.out.println("My Mother's Children: " + ch1 + " and " + ch2);
-		}
-/*			// get child object:
-			IAgent ch1obj = GlobalVars.popListChild.get(ch1);
-			IAgent ch2obj = GlobalVars.popListChild.get(ch2);
-			if (ch1obj != null) {
-				System.out.println("Father's child 1: " + ch1obj.getID());
-			}
-			if (ch1obj != null) {
-				System.out.println("Father's child 2: " + ch2obj.getID());
-			}
-			if (ch1obj.equals(this)) {
-				System.out.println("I am child 1!");
-			} else if (ch2obj.equals(this)) {
-				System.out.println("I am child 2!");
-			} else {
-				System.out.println("I am neither of the children.");
-			}
-			
-			System.exit(0);
-		}
-		/** END DEBUG **/
-		
-		
-		
-		
+
 		/** CHECK TIME OF DAY **/
 		double theTime = BigDecimal.valueOf(ContextManager.realTime).
 		        round(new MathContext(5,RoundingMode.HALF_UP)).doubleValue();
 
-		/** Calling the Agenda item from 'step' causes the code to 
-		 * break on "NullPointerException", probably because too many
-		 * agents ask the same class too many requests. We need to solve this
-		 * so we can have a single Agenda for all rather than configure agendas
-		 * in the code itself.
-		 * 
-		 * But for the meantime, I'll use a function inside DefaultAgent
-		 * (Look at 'getNextAgenda'
-		 */
 		Building nextDestBuilding = this.getNextAgendaItem(theTime);
 		if (nextDestBuilding != null) {
 			this.route = new Route(this, nextDestBuilding.getCoords(), nextDestBuilding); // Create a route to work
@@ -411,6 +370,12 @@ public class DefaultAgent implements IAgent {
 		return this.child1;
 	}
 
+	@Override
+	public void setChildren(int c1, int c2) {
+		setChild1(c1);
+		setChild2(c2);
+		this.setHasChildren(true);
+	}
 	
 	@Override
 	public void setChild2(int pIndex) {
@@ -422,46 +387,6 @@ public class DefaultAgent implements IAgent {
 		return this.child2;
 	}
 	
-	
-/*
-	@Override
-	public void setSibling(IAgent sibling) {
-		this.sibling = sibling;
-	}
-
-	@Override
-	public void setPartner(IAgent partner) {
-		this.partner = partner;
-	}
-
-	@Override
-	public IAgent getSibling() {
-		return this.sibling;
-	}
-
-	@Override
-	public IAgent getPartner() {
-		return this.partner;
-	}
-	
-	@Override
-	public IAgent getChild1() {
-		return this.child1;
-	}
-
-	@Override
-	public void setChild1(IAgent child) {
-		this.child1 = child;
-	}
-	@Override
-	public IAgent getChild2() {
-		return this.child2;
-	}
-	@Override
-	public void setChild2(IAgent child) {
-		this.child2 = child;
-	}
-*/
 	
 	public boolean isHasChildren() {
 		return hasChildren;

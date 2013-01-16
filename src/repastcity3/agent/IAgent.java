@@ -128,7 +128,7 @@ public interface IAgent {
 	
 	boolean isHasChildren();
 	void setHasChildren(boolean hasChildren);
-	
+	public void setChildren(int c1, int c2);
 	
 	/**
 	 * 

@@ -35,7 +35,7 @@ public class DefaultTestAgent implements IAgent {
 	private int sibling = -1;
 	private int partner = -1;
 	
-	
+
 	
 	private boolean hasChildren = false;
 	
@@ -363,7 +363,13 @@ public class DefaultTestAgent implements IAgent {
 	}
 
 	
-	
+	@Override
+	public void setChildren(int c1, int c2) {
+		setChild1(c1);
+		setChild2(c2);
+		this.setHasChildren(true);
+	}
+
 	/*
 	@Override
 	public void setAgenda(AgendaFactory agenda) {

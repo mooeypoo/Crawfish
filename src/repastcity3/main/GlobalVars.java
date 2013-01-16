@@ -47,7 +47,6 @@ public abstract class GlobalVars {
 
 	/* Population Lists */
 	public static ArrayList<IAgent> popListAdult = new ArrayList<IAgent>();
-//	public static ArrayList<IAgent> popListTeen = new ArrayList<IAgent>();
 	public static ArrayList<IAgent> popListChild = new ArrayList<IAgent>();
 	
 	public static boolean isDebug = false;
@@ -66,12 +65,15 @@ public abstract class GlobalVars {
 	public static final int P_CHILD = 5;
 	public static final int P_TEEN = 10;
 	
-	
 	public static int INITIAL_INFECTED;
+	
+	public static int NUM_OF_ADULTS;
 	
 	public static int currentDay = 0;
 
-	public static AgendaFactory Agenda = new AgendaFactory();
+//	public static AgendaFactory Agenda = new AgendaFactory();
+
+	
 	
 	public static final class GEOGRAPHY_PARAMS {
 		

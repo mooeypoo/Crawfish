@@ -6,6 +6,12 @@
 						converter="repast.simphony.parameter.StringConverterFactory$IntConverter"
 									
 		/>
+				<parameter name="NUM_OF_ADULTS" displayName="Number of Adults" type="int" 
+						defaultValue="1000" 
+						isReadOnly="false" 
+						converter="repast.simphony.parameter.StringConverterFactory$IntConverter"
+									
+		/>
 				<parameter name="AGENT_DEFINITION" displayName="Agent Definition" type="java.lang.String" 
 						defaultValue="crawfish_epidemic" 
 						isReadOnly="false" 
