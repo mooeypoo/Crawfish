@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.List;
+import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -79,7 +80,7 @@ public class DefaultAgent implements IAgent {
 //	private AgendaFactory myAgenda;
 	
 	public DefaultAgent() {
-		this.workplace = createWorkplace();
+//		this.workplace = createWorkplace();
 	}
 
 	@Override
@@ -89,10 +90,13 @@ public class DefaultAgent implements IAgent {
 		double theTime = BigDecimal.valueOf(ContextManager.realTime).
 		        round(new MathContext(5,RoundingMode.HALF_UP)).doubleValue();
 
-		Building nextDestBuilding = this.getNextAgendaItem(theTime);
-		if (nextDestBuilding != null) {
-			this.route = new Route(this, nextDestBuilding.getCoords(), nextDestBuilding); // Create a route to work
-			this.currentBuilding = nextDestBuilding;
+		//to save calculation time, only check agenda items on 30-min intervals:
+		if ((theTime%0.5) == 0) {
+			Building nextDestBuilding = this.getNextAgendaItem(theTime);
+			if ((nextDestBuilding != null)) { //&& (!this.currentBuilding.equals(nextDestBuilding))) {
+				this.route = new Route(this, nextDestBuilding.getCoords(), nextDestBuilding); // Create a route to work
+				this.currentBuilding = nextDestBuilding;
+			}
 		}
 		
 		if (this.route == null) {
@@ -110,6 +114,7 @@ public class DefaultAgent implements IAgent {
 			this.route.travel();
 		} else {
 			//Agent reached destination. Delete the route:
+			LOGGER.info("	Agent " + this.getID() + "reached building: TYPE " + this.route.getDestinationBuilding().getType());
 			this.route = null;
 		}
 
@@ -141,11 +146,11 @@ public class DefaultAgent implements IAgent {
 			if (currTime == 9.0) { // 09:00
 				nextPlace = this.workplace;
 				if (this.getType() == GlobalVars.P_ADULT) {
-					nextPlaceStr = "Work";
+					nextPlaceStr = "Work " + nextPlace.getType();
 				} else if (this.getType() == GlobalVars.P_TEEN) {
-					nextPlaceStr = "School";
+					nextPlaceStr = "School " + nextPlace.getType();
 				} else if (this.getType() == GlobalVars.P_CHILD) {
-					nextPlaceStr = "Kindergarten";
+					nextPlaceStr = "Kindergarten " + nextPlace.getType();
 				}
 			}
 			
@@ -158,12 +163,12 @@ public class DefaultAgent implements IAgent {
 			} else if (this.getType() == GlobalVars.P_ADULT) {
 				if (currTime == 17.0) { // 17:00
 					nextPlace = this.home;
-					nextPlaceStr = "Home";
+					nextPlaceStr = "Home ";
 				} 
 				if (this.isHasChildren() == false) {
 					if (currTime == 19.5) { // 19:30
 						nextPlace = findBuilding(GlobalVars.ACT_MALL);
-						nextPlaceStr = "Evening Drinks!";
+						nextPlaceStr = "Evening Drinks!" + nextPlace.getType();
 					} else if (currTime == 23.0) { // 23:00
 						nextPlace = this.home;
 						nextPlaceStr = "Home";
@@ -172,16 +177,23 @@ public class DefaultAgent implements IAgent {
 			} else if (this.getType() == GlobalVars.P_TEEN) { 
 				if (currTime == 15.00) {
 					nextPlace = this.home;
-					nextPlaceStr = "Home";
+					nextPlaceStr = "Home" + nextPlace.getType();
 				}
 			}
+		} else { // stayhome == true
+/*			// send member home only if they're not already there:
+			if (!this.route.getDestinationBuilding().equals(this.home)) { 
+				nextPlace = this.home;
+				nextPlaceStr = "Home (stay home)";
+			}*/
 		}
 		
 		if (nextPlace == null) {
 			return null;
 		} else {
 			System.out.println(currTime + " ["+this.getType()+"] Agent "+this.getID() + " --> " + nextPlaceStr);
-			System.out.println("	> Time spent at previous location: " + timeSpentInLocation + "m");
+			//double realTimeTranslation = (timeSpentInLocation/3)*60;
+			System.out.println("	> Time spent at previous location: " + timeSpentInLocation); // + " ticks ("+realTimeTranslation+" h)");
 			/** 
 			 * Agent is leaving towards a new destination. 
 			 * Make sure the time counter is back to zero
@@ -192,7 +204,9 @@ public class DefaultAgent implements IAgent {
 		}
 	}
 	
-	private Building createWorkplace() {
+	@Override
+//	public Building createWorkplace() {
+	public void createWorkplace() {
 		Building work = null;
 		if (this.getType() == GlobalVars.P_ADULT) { //adult
 			work = findBuilding(GlobalVars.ACT_WORK);
@@ -202,17 +216,24 @@ public class DefaultAgent implements IAgent {
 			work = findBuilding(GlobalVars.ACT_SCHOOL);
 		}
 
-		return work;
+		this.workplace = work;
+	}
+	
+	@Override
+	public Building getWorkplace() {
+		return this.workplace;
 	}
 	
 	/** Find a random building by type **/
 	private Building findBuilding(int buildingType) {
 		Building build = null;
-		for (Building b:ContextManager.buildingContext.getRandomObjects(Building.class, 10000)) {
-			if (b.getType() == buildingType) { 
-				build = b;
-				break;
-			}		
+		while (build == null) {
+			for (Building b:ContextManager.buildingContext.getRandomObjects(Building.class, 10000)) {
+				if (b.getType() == buildingType) { 
+					build = b;
+					break;
+				}		
+			}
 		}
 		return build;
 	}
@@ -288,6 +309,41 @@ public class DefaultAgent implements IAgent {
 	@Override
 	public void setHealthStatus(DiseaseStages st) {
 		this.myHealthStatus = st;
+		
+		if (st.isSymptomatic() == true) {
+			if (this.getType() == GlobalVars.P_CHILD) {
+				this.stayHome = true;
+				//randomly pick a parent to stay with the child:
+				Random randomGenerator = new Random(123987);
+				int rand = randomGenerator.nextInt(2);
+				int parentIndex = -1;
+				if (rand == 1) {
+					parentIndex = this.getMother();
+				} else {
+					parentIndex = this.getFather();
+				}
+				GlobalVars.popListAdult.get(parentIndex).setStayHome(true);
+			} else if (this.getType() == GlobalVars.P_CHILD) {
+				this.stayHome = true;
+			} else {
+				//don't do anything for adults
+			}
+		} else {
+			if (this.getType() == GlobalVars.P_CHILD) {
+				this.stayHome = false;
+				//let the parent go back to work (unless sibling is sick):
+				if ((GlobalVars.popListChild.get(this.getSibling()).getType() == GlobalVars.P_CHILD) && (GlobalVars.popListChild.get(this.getSibling()).getHealthStatus().isSymptomatic()==true)) {
+					//do nothing, sibling is a child who's sick
+				} else {
+					GlobalVars.popListAdult.get(this.getMother()).setStayHome(false);
+					GlobalVars.popListAdult.get(this.getFather()).setStayHome(false);
+				}
+			} else if (this.getType() == GlobalVars.P_TEEN) {
+				this.stayHome = false;
+			} else {
+				//do nothing for adults
+			}
+		}
 	}
 	
 	@Override

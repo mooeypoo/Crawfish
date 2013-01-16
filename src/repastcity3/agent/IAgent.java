@@ -50,6 +50,9 @@ public interface IAgent {
 	 */
 	boolean isThreadable();
 
+	public void createWorkplace();
+	public Building getWorkplace();
+	
 	/**
 	 * Set health status
 	 */

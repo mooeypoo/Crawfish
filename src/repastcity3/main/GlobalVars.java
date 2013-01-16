@@ -59,6 +59,24 @@ public abstract class GlobalVars {
 	public static final int ACT_KINDERGARTEN = 4;
 	public static final int ACT_MALL = 5;
 	public static final int ACT_LUNCH = 6;
+	
+	public static enum BUILDING {
+		HOME(0),
+		HOUSE(1),
+		WORK(2),
+		SCHOOL(3),
+		KINDERGARTEN(4),
+		MALL(5);
+		
+		private int bType;
+		BUILDING(int buildingType) {
+			this.bType = buildingType;
+		}
+		public int num() {
+			return this.bType;
+		}
+	}
+	
 
 	/** AGENT TYPES **/
 	public static final int P_ADULT = 0;

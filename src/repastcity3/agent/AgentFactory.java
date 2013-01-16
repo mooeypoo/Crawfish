@@ -57,14 +57,6 @@ public class AgentFactory {
 	public AgentFactory(String agentDefinition) throws AgentCreationException {
 
 		String method = agentDefinition;
-		// First try to parse the definition
-		//String[] split = agentDefinition.split(":");
-		//if (split.length != 2) {
-			//throw new AgentCreationException("Problem parsin the definition string '" + agentDefinition
-					//+ "': it split into " + split.length + " parts but should split into 2.");
-		//}
-		//String method = split[0]; // The method to create agents
-		//String defn = split[1]; // Information about the agents themselves
 
 		if (method.equals(AGENT_FACTORY_METHODS.RANDOM.toString())) {
 			this.methodToUse = AGENT_FACTORY_METHODS.RANDOM;
@@ -364,11 +356,11 @@ public class AgentFactory {
 		}
 
 		IAgent person = new DefaultAgent(); // Create a new agent
+
 		person.setType(pType);
-		
 		person.setHome(pHome);
-		
 		person.setID(index);
+		person.createWorkplace();
 		
 		try {
 			if (pType == GlobalVars.P_ADULT) {

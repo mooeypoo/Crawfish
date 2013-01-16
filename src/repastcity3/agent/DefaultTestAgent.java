@@ -76,12 +76,13 @@ public class DefaultTestAgent implements IAgent {
 
 	public DefaultTestAgent() {
 		this.id = uniqueID++;
-		this.workplace = createWorkplace();
+		createWorkplace();
 
 	}
 
-	private Building createWorkplace() {
-		// TODO Auto-generated method stub
+	@Override
+//	public Building createWorkplace() {
+	public void createWorkplace() {
 		Building work = null;
 		if (this.getType() == GlobalVars.P_ADULT) { //adult
 			work = findBuilding(GlobalVars.ACT_WORK);
@@ -91,10 +92,13 @@ public class DefaultTestAgent implements IAgent {
 			work = findBuilding(GlobalVars.ACT_SCHOOL);
 		}
 
-		return work;
+		this.workplace = work;
 	}
-
-
+	@Override
+	public Building getWorkplace() {
+		return this.workplace;
+	}
+	
 	
 	@Override
 	public void step() throws Exception {
