@@ -28,7 +28,6 @@ import com.vividsolutions.jts.geom.Geometry;
 
 import repastcity3.agent.IAgent;
 import repastcity3.environment.Route;
-import repastcity3.agent.AgendaFactory;
 /**
  * 
  * @author nick

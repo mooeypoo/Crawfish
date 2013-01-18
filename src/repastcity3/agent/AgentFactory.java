@@ -33,6 +33,7 @@ public class AgentFactory {
 
 	/** WE SHOULD ADD THESE TO THE PARAMETERS!!! **/
 	private static final int TOTAL_POPULATION_NUMBER = 1000; // This will be approximate (close enough)
+
 	private static final double PERC_ADULTS_MARRIED = 0.85; // 85% (out of all adults)
 	private static final double PERC_ADULTS_WCHILD = 0.8; 	// 80% (out of married adults)
 

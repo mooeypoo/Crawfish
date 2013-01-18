@@ -60,7 +60,7 @@ public class DefaultAgent implements IAgent {
 	private Route route; // An object to move the agent around the world
 
 	private Building currentBuilding; //the building the agent is currently located
-	
+	private boolean alreadyUpdatedBuilding = false;
 	private boolean goingHome = false; // Whether the agent is going to or from their home
 	
 	/** 
@@ -90,12 +90,12 @@ public class DefaultAgent implements IAgent {
 		double theTime = BigDecimal.valueOf(ContextManager.realTime).
 		        round(new MathContext(5,RoundingMode.HALF_UP)).doubleValue();
 
-		//to save calculation time, only check agenda items on 30-min intervals:
+		//to save calculation time, only check agenda items on 60-min intervals:
 		if ((theTime%0.5) == 0) {
 			Building nextDestBuilding = this.getNextAgendaItem(theTime);
-			if ((nextDestBuilding != null)) { //&& (!this.currentBuilding.equals(nextDestBuilding))) {
+			//make sure to only check this once per building:
+			if ((nextDestBuilding != null)) { 
 				// Leaving towards new destination.
-				
 
 				/* THIS LINE BELOW, when not commented out,
 				 * creates endless exceptions of java.lang.NullPointerException				 
@@ -115,13 +115,14 @@ java.lang.NullPointerException
 				 * This is something to do with the threading and the
 				 * synchronized... we need to solve this or find an 
 				 * alternate way of counting infectious people in a house :\ 
-*/
 				synchronized (ContextManager.randomLock) {
 					this.currentBuilding.agentOut(true); //(this.getHealthStatus().isInfectious());
 				}
-
+*/
+				
 				this.route = new Route(this, nextDestBuilding.getCoords(), nextDestBuilding); // Create a route to work
 				this.currentBuilding = nextDestBuilding;
+				
 			}
 		}
 		
@@ -133,16 +134,30 @@ java.lang.NullPointerException
 			 * so we can use this for the infectiousness calculation
 			 * when the agent leaves the location
 			 *  **/
+			this.alreadyUpdatedBuilding = false;
 			this.timeSpentInLocation++;
 			
 		} else if (!this.route.atDestination()) {
 			//Agent on the way
+			if (this.alreadyUpdatedBuilding==false) {
+				for (Building b : this.route.getPassedBuildings()) {
+					if (b.equals(this.currentBuilding)) {
+						System.out.println("Agent "+this.getID()+" HOUSES MATCH (GOING INSIDE)");
+					}
+				}
+				this.alreadyUpdatedBuilding=true;
+			}
 			this.route.travel();
+			
 		} else {
 			//Agent reached destination. Delete the route:
-//			LOGGER.info("	Agent " + this.getID() + " reached building: TYPE " + this.route.getDestinationBuilding().getType());
-			synchronized (ContextManager.randomLock) {
-				this.currentBuilding.agentOut(true); //(this.getHealthStatus().isInfectious());
+			if (this.alreadyUpdatedBuilding==false) {
+				for (Building b : this.route.getPassedBuildings()) {
+					if (b.equals(this.currentBuilding)) {
+						System.out.println("Agent "+this.getID()+" HOUSES MATCH (GOING INSIDE)");
+					}
+				}
+				this.alreadyUpdatedBuilding=true;
 			}
 			this.timeSpentInLocation = 0;
 			this.route = null;
@@ -206,7 +221,7 @@ java.lang.NullPointerException
 					nextPlaceStr = "Home ";
 				} 
 				if (this.isHasChildren() == false) {
-					if (currTime == 19.5) { // 19:30
+					if (currTime == 20.0) { // 20:00
 						nextPlace = findBuilding(GlobalVars.ACT_MALL);
 						nextPlaceStr = "Evening Drinks!" + nextPlace.getType();
 					} else if (currTime == 23.0) { // 23:00
@@ -240,6 +255,7 @@ java.lang.NullPointerException
 			 */
 
 			//this.timeSpentInLocation = 0;
+			this.alreadyUpdatedBuilding=false;
 			return nextPlace;
 		}
 	}
@@ -298,8 +314,8 @@ java.lang.NullPointerException
 	 */
 	@Override
 	public final boolean isThreadable() {
-		return true;
-//		return false;
+//		return true;
+		return false;
 	}
 
 	@Override

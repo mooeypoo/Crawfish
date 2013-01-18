@@ -83,29 +83,6 @@ public class Building implements FixedGeography, Identified {
 		this.identifier = id;
 	}
 
-	/*** INFECTIOUSNESS **/
-	public synchronized void agentIn(boolean isInfectious) {
-		if (isInfectious == true) {
-			this.numInfectious++;
-		}
-		this.numTotalInHouse++;
-	}
-	
-	public synchronized void agentOut(boolean isInfectious) {
-		if (isInfectious == true) {
-			this.numInfectious--;
-		}
-		this.numTotalInHouse--;
-	}
-	
-	public int getInfected() {
-		return this.numInfectious;
-	}
-	
-	public int getAgentsInHouse() {
-		return this.numTotalInHouse;
-	}
-	/*** END INFECTIOUSNESS **/
 	
 	
 	
@@ -171,6 +148,31 @@ public class Building implements FixedGeography, Identified {
 		this.numBurglaries++;
 	}
 
+	/*** INFECTIOUSNESS **/
+	public synchronized void agentIn(boolean isInfectious) {
+		if (isInfectious == true) {
+			this.numInfectious++;
+		}
+		this.numTotalInHouse++;
+	}
+	
+	public synchronized void agentOut(boolean isInfectious) {
+		if (isInfectious == true) {
+			this.numInfectious--;
+		}
+		this.numTotalInHouse--;
+	}
+	
+	public int getInfected() {
+		return this.numInfectious;
+	}
+	
+	public int getAgentsInHouse() {
+		return this.numTotalInHouse;
+	}
+	/*** END INFECTIOUSNESS **/
+	
+	
 /*
  * 	public void setID(int id) {
 
