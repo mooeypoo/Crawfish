@@ -43,7 +43,6 @@ public class DefaultAgent implements IAgent {
 	private int sibling = -1;
 	private int partner = -1;
 	
-	
 	private double timeSpentInLocation = 0;
 
 	private double timeGotIntoLocation = -1.0;
@@ -96,11 +95,31 @@ public class DefaultAgent implements IAgent {
 			Building nextDestBuilding = this.getNextAgendaItem(theTime);
 			if ((nextDestBuilding != null)) { //&& (!this.currentBuilding.equals(nextDestBuilding))) {
 				// Leaving towards new destination.
-				// Calculate infection rate:
-//				double infectiousness = calcInfectiousness(this.currentBuilding);
-//				System.out.println("INFECTIOUSNESS: " + infectiousness);
 				
-//				this.currentBuilding.agentOut(this);
+
+				/* THIS LINE BELOW, when not commented out,
+				 * creates endless exceptions of java.lang.NullPointerException				 
+				 * and stops the simulation 
+				 * This happens with and without the 'synchronized'
+				 * 
+				 * SANEM !!!! HEEEELLLPP!!!
+				 * 
+				 * Error is:
+				 * 
+SEVERE: ContextManager has been told to stop by repastcity3.agent.BurglarThread
+java.lang.NullPointerException
+	at repastcity3.agent.DefaultAgent.step(DefaultAgent.java:106)
+	at repastcity3.agent.BurglarThread.run(ThreadedAgentScheduler.java:224)
+	at java.lang.Thread.run(Unknown Source)
+				 * 
+				 * This is something to do with the threading and the
+				 * synchronized... we need to solve this or find an 
+				 * alternate way of counting infectious people in a house :\ 
+*/
+				synchronized (ContextManager.randomLock) {
+					this.currentBuilding.agentOut(true); //(this.getHealthStatus().isInfectious());
+				}
+
 				this.route = new Route(this, nextDestBuilding.getCoords(), nextDestBuilding); // Create a route to work
 				this.currentBuilding = nextDestBuilding;
 			}
@@ -122,7 +141,9 @@ public class DefaultAgent implements IAgent {
 		} else {
 			//Agent reached destination. Delete the route:
 //			LOGGER.info("	Agent " + this.getID() + " reached building: TYPE " + this.route.getDestinationBuilding().getType());
-//			this.currentBuilding.agentIn(this);
+			synchronized (ContextManager.randomLock) {
+				this.currentBuilding.agentOut(true); //(this.getHealthStatus().isInfectious());
+			}
 			this.timeSpentInLocation = 0;
 			this.route = null;
 		}
@@ -139,16 +160,10 @@ public class DefaultAgent implements IAgent {
 		//count how many S/I people are in the building:
 		int allAgentsInBuilding =0;
 		int infectedAgentsInBuilding =0;
-		List<IAgent> allAg = b.getAgentsInside();
-		for (int i=0; i<allAg.size(); i++) {
-			if (allAg.get(i).getHealthStatus().isInfectious() == true) {
-				infectedAgentsInBuilding++;
-			}
-			allAgentsInBuilding++;
-		}
+		infectedAgentsInBuilding = this.currentBuilding.getInfected();
 		
 		//count time
-		if (infectedAgentsInBuilding > 0 && allAgentsInBuilding > 0) {
+		if (allAgentsInBuilding > 0) {
 			// the formula makes no sense.. I adapted it just to test, but
 			// we need to figure it out... (talk to me i'll explain)
 			result = GlobalVars.InfectionFactor * (infectedAgentsInBuilding * this.timeSpentInLocation) / allAgentsInBuilding;
@@ -264,15 +279,9 @@ public class DefaultAgent implements IAgent {
 	}
 
 	
-/*
- * 	private boolean hasChildren() {
-
-		if ((this.child1 != null) || (this.child2 != null)) {
-			return true;
-		}
-		return false;
+	public Building getCurrentBuilding() {
+		return this.currentBuilding;
 	}
-*/
 	
 	@Override
 	public void setType(int type) {
@@ -289,8 +298,8 @@ public class DefaultAgent implements IAgent {
 	 */
 	@Override
 	public final boolean isThreadable() {
-//		return true;
-		return false;
+		return true;
+//		return false;
 	}
 
 	@Override

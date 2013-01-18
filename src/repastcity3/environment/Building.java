@@ -36,9 +36,10 @@ public class Building implements FixedGeography, Identified {
 	/** Number of times this house has been burgled */
 	private int numBurglaries = 0;
 	
+	private int numInfectious = 0;
+	private int numTotalInHouse = 0;
 	/** A list of agents who live here */
 	private List<IAgent> agents;
-	private List<IAgent> agentsInBuilding;
 
 	/**
 	 * A unique identifier for buildings, usually set from the 'identifier' column in a shapefile
@@ -82,22 +83,31 @@ public class Building implements FixedGeography, Identified {
 		this.identifier = id;
 	}
 
-	public void agentIn(IAgent a) {
-		if (!this.agentsInBuilding.contains(a)) {
-			this.agentsInBuilding.add(a);
-			int ind = this.agentsInBuilding.size() - 1;
+	/*** INFECTIOUSNESS **/
+	public synchronized void agentIn(boolean isInfectious) {
+		if (isInfectious == true) {
+			this.numInfectious++;
 		}
+		this.numTotalInHouse++;
 	}
 	
-	public void agentOut(IAgent a) {
-		if (this.agentsInBuilding.contains(a)) {
-			this.agentsInBuilding.remove(a);
+	public synchronized void agentOut(boolean isInfectious) {
+		if (isInfectious == true) {
+			this.numInfectious--;
 		}
+		this.numTotalInHouse--;
 	}
 	
-	public List<IAgent> getAgentsInside() {
-		return this.agentsInBuilding;
+	public int getInfected() {
+		return this.numInfectious;
 	}
+	
+	public int getAgentsInHouse() {
+		return this.numTotalInHouse;
+	}
+	/*** END INFECTIOUSNESS **/
+	
+	
 	
 	public void addAgent(IAgent a) {
 		this.agents.add(a);
