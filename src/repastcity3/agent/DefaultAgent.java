@@ -105,34 +105,43 @@ public class DefaultAgent implements IAgent {
 			//for the first time, check the building (agent in):
 			if (this.alreadyUpdatedBuilding==false) {
 				//agentIn
+				System.out.println("Agent "+this.getID()+" is inside building.");
 				for (Building b : this.nearbyBuildings) {
 					if (b.equals(this.currentBuilding)) {
 						System.out.println("Agent "+this.getID()+" HOUSES MATCH (GOING INSIDE)");
 						b.agentIn(this.getHealthStatus().isInfectious());
 					}
 				}
+//				double inf = calcInfectiousness(this.currentBuilding);
+//				System.out.println("Agent "+this.getID()+"|Building "+this.currentBuilding+" = inf "+inf);
 				this.alreadyUpdatedBuilding = true;
 			}
 		} else if (!this.route.atDestination()) {
 			//Agent is traveling
-			this.route.travel();
 			//for the first time, check the building (agent out)
 			if (this.alreadyUpdatedBuilding==false) {
+				this.nearbyBuildings = this.route.getPassedBuildings();
 				//agentIn
 				if (this.nearbyBuildings != null) {
+					System.out.println("Agent "+this.getID()+" traveling (left destination)");
 					for (Building b : this.nearbyBuildings) {
 						if (b.equals(this.currentBuilding)) {
 							System.out.println("Agent "+this.getID()+" HOUSES MATCH (GOING OUTSIDE)");
 							b.agentOut(this.getHealthStatus().isInfectious());
+							break;
 						}
 					}
+//					double inf = calcInfectiousness(this.currentBuilding);
+//					System.out.println("Agent "+this.getID()+"|Building "+this.currentBuilding+" = inf "+inf);
+					this.alreadyUpdatedBuilding = true;
 				}
-				this.alreadyUpdatedBuilding = true;
 				//this.nearbyBuildings = null;
 			}
-			
+			this.route.travel();			
+
 		} else if (this.route.atDestination()) {
 			//Agent reached destination. 
+			this.nearbyBuildings = this.route.getPassedBuildings();
 			this.timeSpentInLocation = 0;
 			this.alreadyUpdatedBuilding = false;
 			this.route = null;
@@ -150,10 +159,11 @@ public class DefaultAgent implements IAgent {
 	public double calcInfectiousness(Building b) {
 		double result = 0;
 		//count how many S/I people are in the building:
-		int allAgentsInBuilding =0;
-		int infectedAgentsInBuilding =0;
-		infectedAgentsInBuilding = b.getInfected();
-		
+		int allAgentsInBuilding=0, infectedAgentsInBuilding=0;
+		synchronized (ContextManager.randomLock) {
+			allAgentsInBuilding = b.getAgentsInHouse();
+			infectedAgentsInBuilding = b.getInfected();
+		}		
 		//count time
 		if (allAgentsInBuilding > 0) {
 			// the formula makes no sense.. I adapted it just to test, but
@@ -223,9 +233,9 @@ public class DefaultAgent implements IAgent {
 		if (nextPlace == null) {
 			return null;
 		} else {
-			System.out.println(currTime + " ["+this.getType()+"] Agent "+this.getID() + " --> " + nextPlaceStr);
+//			System.out.println(currTime + " ["+this.getType()+"] Agent "+this.getID() + " --> " + nextPlaceStr);
 			//double realTimeTranslation = (timeSpentInLocation/3)*60;
-			System.out.println("	> Time spent at previous location: " + timeSpentInLocation); // + " ticks ("+realTimeTranslation+" h)");
+//			System.out.println("	> Time spent at previous location: " + timeSpentInLocation); // + " ticks ("+realTimeTranslation+" h)");
 			/** 
 			 * Agent is leaving towards a new destination. 
 			 * Make sure the time counter is back to zero
