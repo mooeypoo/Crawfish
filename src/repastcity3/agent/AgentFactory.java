@@ -1,8 +1,16 @@
-/*©Copyright 2012 Nick Malleson
-This file is part of RepastCity.
-
-You should have received a copy of the GNU General Public License
-along with RepastCity.  If not, see <http://www.gnu.org/licenses/>.*/
+/**
+ * Crawfish Prototype 
+ * Agent-based Epidemic Simulation, using SEIR(S) Model
+ * 
+ * @version 1.0 Alpha
+ * @author 	New York Institute of Technology, 2013
+ * 			Dr. Cui's Research Team
+ * 
+ * AgentFactory
+ * Creates the agents in the simulation and assigns them
+ * to households as per the initial user-defined parameters
+ * 
+ **/
 
 package repastcity3.agent;
 

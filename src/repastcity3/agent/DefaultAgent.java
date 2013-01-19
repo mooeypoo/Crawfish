@@ -1,15 +1,19 @@
-/*
-©Copyright 2012 Nick Malleson
-
-You should have received a copy of the GNU General Public License
-along with RepastCity.  If not, see <http://www.gnu.org/licenses/>.
- */
+/**
+ * Crawfish Prototype 
+ * Agent-based Epidemic Simulation, using SEIR(S) Model
+ * 
+ * @version 1.0 Alpha
+ * @author 	New York Institute of Technology, 2013
+ * 			Dr. Cui's Research Team
+ * 
+ **/
 
 package repastcity3.agent;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
@@ -26,14 +30,6 @@ public class DefaultAgent implements IAgent {
 
 	private static Logger LOGGER = Logger.getLogger(DefaultAgent.class.getName());
 
-	/*
-	private IAgent mother = null;
-	private IAgent father = null;
-	private IAgent child1 = null;
-	private IAgent child2 = null;
-	private IAgent sibling = null;
-	private IAgent partner = null;
-	*/
 	
 	/* FAMILY */
 	private int mother = -1;
@@ -53,7 +49,8 @@ public class DefaultAgent implements IAgent {
 	 */
 	private Boolean stayHome = false; //set true if parent of a sick child
 	
-	
+	private List<Building> nearbyBuildings = new ArrayList<Building>();;
+
 	private Building home; // Where the agent lives
 	private Building workplace; // Where the agent works
 	private Building mall; // random mall for recreation
@@ -63,12 +60,6 @@ public class DefaultAgent implements IAgent {
 	private boolean alreadyUpdatedBuilding = false;
 	private boolean goingHome = false; // Whether the agent is going to or from their home
 	
-	/** 
-	 * Agent Types:
-	 * 0 - Adult
-	 * 5 - Child
-	 * 10 - Teenager
-	 */
 	private int agentType = 0;
 	
 	private DiseaseStages myHealthStatus = DiseaseStages.S;
@@ -93,39 +84,15 @@ public class DefaultAgent implements IAgent {
 		//to save calculation time, only check agenda items on 60-min intervals:
 		if ((theTime%0.5) == 0) {
 			Building nextDestBuilding = this.getNextAgendaItem(theTime);
-			//make sure to only check this once per building:
 			if ((nextDestBuilding != null)) { 
 				// Leaving towards new destination.
-
-				/* THIS LINE BELOW, when not commented out,
-				 * creates endless exceptions of java.lang.NullPointerException				 
-				 * and stops the simulation 
-				 * This happens with and without the 'synchronized'
-				 * 
-				 * SANEM !!!! HEEEELLLPP!!!
-				 * 
-				 * Error is:
-				 * 
-SEVERE: ContextManager has been told to stop by repastcity3.agent.BurglarThread
-java.lang.NullPointerException
-	at repastcity3.agent.DefaultAgent.step(DefaultAgent.java:106)
-	at repastcity3.agent.BurglarThread.run(ThreadedAgentScheduler.java:224)
-	at java.lang.Thread.run(Unknown Source)
-				 * 
-				 * This is something to do with the threading and the
-				 * synchronized... we need to solve this or find an 
-				 * alternate way of counting infectious people in a house :\ 
-				synchronized (ContextManager.randomLock) {
-					this.currentBuilding.agentOut(true); //(this.getHealthStatus().isInfectious());
-				}
-*/
-				
+				this.alreadyUpdatedBuilding = false;
 				this.route = new Route(this, nextDestBuilding.getCoords(), nextDestBuilding); // Create a route to work
 				this.currentBuilding = nextDestBuilding;
-				
 			}
 		}
 		
+		/** ROUTE DEFINITIONS **/
 		if (this.route == null) {
 			/** 
 			 * Null route means the agent is inside a building.
@@ -134,36 +101,46 @@ java.lang.NullPointerException
 			 * so we can use this for the infectiousness calculation
 			 * when the agent leaves the location
 			 *  **/
-			this.alreadyUpdatedBuilding = false;
 			this.timeSpentInLocation++;
-			
+			//for the first time, check the building (agent in):
+			if (this.alreadyUpdatedBuilding==false) {
+				//agentIn
+				for (Building b : this.nearbyBuildings) {
+					if (b.equals(this.currentBuilding)) {
+						System.out.println("Agent "+this.getID()+" HOUSES MATCH (GOING INSIDE)");
+						b.agentIn(this.getHealthStatus().isInfectious());
+					}
+				}
+				this.alreadyUpdatedBuilding = true;
+			}
 		} else if (!this.route.atDestination()) {
-			//Agent on the way
-			if (this.alreadyUpdatedBuilding==false) {
-				for (Building b : this.route.getPassedBuildings()) {
-					if (b.equals(this.currentBuilding)) {
-						System.out.println("Agent "+this.getID()+" HOUSES MATCH (GOING INSIDE)");
-					}
-				}
-				this.alreadyUpdatedBuilding=true;
-			}
+			//Agent is traveling
 			this.route.travel();
-			
-		} else {
-			//Agent reached destination. Delete the route:
+			//for the first time, check the building (agent out)
 			if (this.alreadyUpdatedBuilding==false) {
-				for (Building b : this.route.getPassedBuildings()) {
-					if (b.equals(this.currentBuilding)) {
-						System.out.println("Agent "+this.getID()+" HOUSES MATCH (GOING INSIDE)");
+				//agentIn
+				if (this.nearbyBuildings != null) {
+					for (Building b : this.nearbyBuildings) {
+						if (b.equals(this.currentBuilding)) {
+							System.out.println("Agent "+this.getID()+" HOUSES MATCH (GOING OUTSIDE)");
+							b.agentOut(this.getHealthStatus().isInfectious());
+						}
 					}
 				}
-				this.alreadyUpdatedBuilding=true;
+				this.alreadyUpdatedBuilding = true;
+				//this.nearbyBuildings = null;
 			}
+			
+		} else if (this.route.atDestination()) {
+			//Agent reached destination. 
 			this.timeSpentInLocation = 0;
+			this.alreadyUpdatedBuilding = false;
 			this.route = null;
 		}
 
 	} // step()
+
+	
 
 	/** 
 	 * Calculate the infectiousness of whatever building
@@ -175,7 +152,7 @@ java.lang.NullPointerException
 		//count how many S/I people are in the building:
 		int allAgentsInBuilding =0;
 		int infectedAgentsInBuilding =0;
-		infectedAgentsInBuilding = this.currentBuilding.getInfected();
+		infectedAgentsInBuilding = b.getInfected();
 		
 		//count time
 		if (allAgentsInBuilding > 0) {
