@@ -44,7 +44,6 @@ public class DefaultAgent implements IAgent {
 	
 	private double timeSpentInLocation = 0;
 
-	private double timeGotIntoLocation = -1.0;
 	/**
 	 * Boolean stayHome
 	 * false if going to work/school/kindergarden
@@ -59,6 +58,7 @@ public class DefaultAgent implements IAgent {
 	private Building mall; // random mall for recreation
 	private Route route; // An object to move the agent around the world
 
+	private Building previousBuilding = null; //whatever we visited last
 	private Building currentBuilding; //the building the agent is currently located
 	private boolean alreadyUpdatedBuilding = false;
 	private boolean goingHome = false; // Whether the agent is going to or from their home
@@ -108,24 +108,19 @@ public class DefaultAgent implements IAgent {
 			//for the first time, check the building (agent in):
 			if (this.alreadyUpdatedBuilding == false) {
 				//agentIn
-				visitBuilding(true);
-				double inf = 0;
-//				synchronized (ContextManager.randomLock) {
-//					inf = this.currentBuilding.getAgentsInHouse();
-//					System.out.println(">>> Agent #"+this.getID()+": "+inf);
-//				}
+				visitBuilding(this.currentBuilding,true); //go in
+//				visitBuilding(this.previousBuilding,false); //go out
 				this.alreadyUpdatedBuilding = true;
 			}
 		} else if (!this.route.atDestination()) {
 			//Agent is traveling
 			//for the first time, check the building (agent out)
 			if (this.alreadyUpdatedBuilding==false) {
-				visitBuilding(false);
-				double inf = 0;
-//				synchronized (ContextManager.randomLock) {
-//					inf = this.currentBuilding.getAgentsInHouse();
-//					System.out.println(">>> Agent #"+this.getID()+": "+inf);
-//				}
+				
+				visitBuilding(this.currentBuilding,false); //go out
+//				moved above as an attempt to make sure
+//				all agents leave at once
+				this.previousBuilding = this.currentBuilding;
 				this.alreadyUpdatedBuilding = true;
 			}
 				
@@ -142,13 +137,13 @@ public class DefaultAgent implements IAgent {
 
 	} // step()
 
-	public boolean visitBuilding(boolean amIGoingIn) {
+	public boolean visitBuilding(Building b, boolean amIGoingIn) {
 		synchronized (ContextManager.randomLock) {
 			Iterator<Building> bList = ContextManager.buildingContext.getRandomObjects(Building.class, 10000).iterator();
 			String msg = "";
 			while (bList.hasNext()) {
 				Building bld = bList.next();
-				if (bld.equals(currentBuilding)) {
+				if (bld.equals(b)) {
 					if (amIGoingIn==true) {
 						msg = "IN";
 						bld.agentIn(this.getHealthStatus().isInfectious());
@@ -182,7 +177,7 @@ public class DefaultAgent implements IAgent {
 		if (allAgentsInBuilding > 0) {
 			// the formula makes no sense.. I adapted it just to test, but
 			// we need to figure it out... (talk to me i'll explain)
-			result = GlobalVars.InfectionFactor * (infectedAgentsInBuilding * this.timeSpentInLocation) / allAgentsInBuilding;
+			result = GlobalVars.InfectionFactor * this.timeSpentInLocation * (infectedAgentsInBuilding / allAgentsInBuilding);
 		}
 		return result;
 	}
@@ -250,6 +245,8 @@ public class DefaultAgent implements IAgent {
 //			System.out.println(currTime + " ["+this.getType()+"] Agent "+this.getID() + " --> " + nextPlaceStr);
 			//double realTimeTranslation = (timeSpentInLocation/3)*60;
 //			System.out.println("	> Time spent at previous location: " + timeSpentInLocation); // + " ticks ("+realTimeTranslation+" h)");
+			double num = this.calcInfectiousness(nextPlace);
+			System.out.println("Building #"+nextPlace.getID()+" infectiousness: "+num);
 			/** 
 			 * Agent is leaving towards a new destination. 
 			 * Make sure the time counter is back to zero
