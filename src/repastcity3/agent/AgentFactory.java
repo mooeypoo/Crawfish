@@ -45,9 +45,9 @@ public class AgentFactory {
 	private static final double PERC_ADULTS_MARRIED = 0.85; // 85% (out of all adults)
 	private static final double PERC_ADULTS_WCHILD = 0.8; 	// 80% (out of married adults)
 
-	private int initInfected_Adults 	= 10;	//GlobalVars.INITIAL_INFECTED_ADULTS;
-	private int initInfected_Teens 		= 5;	//GlobalVars.INITIAL_INFECTED_TEENS;
-	private int initInfected_Children 	= 5; 	//GlobalVars.INITIAL_INFECTED_CHILDREN;
+	private int initInfected_Adults 	= 1000;	//GlobalVars.INITIAL_INFECTED_ADULTS;
+	private int initInfected_Teens 		= 500;	//GlobalVars.INITIAL_INFECTED_TEENS;
+	private int initInfected_Children 	= 500; 	//GlobalVars.INITIAL_INFECTED_CHILDREN;
 	/** ---------------------------------------- **/
 	
 	
@@ -196,24 +196,30 @@ public class AgentFactory {
 		int infectedCounter = 0, infAcounter=0, infTcounter=0, infCcounter=0;
 		
 		if (inf_Adult.size() > 0) {
-			for (int ind=0; ind<inf_Adult.size(); ind++) {
-				GlobalVars.popListAdult.get(ind).setHealthStatus(DiseaseStages.I);
-				infectedCounter++;
-				infAcounter++;
+			for (int ind=0; ind<inf_Adult.size(); ind++) {			
+				if (ind<GlobalVars.popListAdult.size() && GlobalVars.popListAdult.get(ind) != null) {
+					GlobalVars.popListAdult.get(ind).setHealthStatus(DiseaseStages.I);
+					infectedCounter++;
+					infAcounter++;
+				}
 			}
 		}
 		if (inf_Teen.size() > 0) {
 			for (int ind=0; ind<inf_Teen.size(); ind++) {
-				GlobalVars.popListChild.get(ind).setHealthStatus(DiseaseStages.I);
-				infectedCounter++;
-				infTcounter++;
+				if (ind<GlobalVars.popListChild.size() && GlobalVars.popListChild.get(ind) != null) {
+					GlobalVars.popListChild.get(ind).setHealthStatus(DiseaseStages.I);
+					infectedCounter++;
+					infTcounter++;
+				}
 			}
 		}
 		if (inf_Child.size() > 0) {
 			for (int ind=0; ind<inf_Child.size(); ind++) {
-				GlobalVars.popListChild.get(ind).setHealthStatus(DiseaseStages.I);
-				infectedCounter++;
-				infCcounter++;
+				if (ind<GlobalVars.popListChild.size() && GlobalVars.popListChild.get(ind) != null) {
+					GlobalVars.popListChild.get(ind).setHealthStatus(DiseaseStages.I);
+					infectedCounter++;
+					infCcounter++;
+				}
 			}
 		}
 //		Iterator<Building> i = pList.iterator();
@@ -328,6 +334,7 @@ public class AgentFactory {
 
 		if (index > -1) {
 			pHome.addAgent(GlobalVars.popListAdult.get(index));
+			pHome.agentIn(false);
 		}
 		return index;
 	}
@@ -338,6 +345,7 @@ public class AgentFactory {
 			GlobalVars.popListChild.get(index).setMother(pMother);
 			GlobalVars.popListChild.get(index).setFather(pFather);
 			pHome.addAgent(GlobalVars.popListAdult.get(index));
+			pHome.agentIn(false);
 		}
 		return index;
 	}

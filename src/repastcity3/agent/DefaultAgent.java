@@ -20,9 +20,12 @@ import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.vividsolutions.jts.geom.Coordinate;
+
 import repast.simphony.random.RandomHelper;
 import repastcity3.environment.Building;
 import repastcity3.environment.Route;
+import repastcity3.environment.SpatialIndexManager;
 import repastcity3.main.ContextManager;
 import repastcity3.main.GlobalVars;
 
@@ -103,40 +106,30 @@ public class DefaultAgent implements IAgent {
 			 *  **/
 			this.timeSpentInLocation++;
 			//for the first time, check the building (agent in):
-			if (this.alreadyUpdatedBuilding==false) {
+			if (this.alreadyUpdatedBuilding == false) {
 				//agentIn
-				System.out.println("Agent "+this.getID()+" is inside building.");
-				for (Building b : this.nearbyBuildings) {
-					if (b.equals(this.currentBuilding)) {
-						System.out.println("Agent "+this.getID()+" HOUSES MATCH (GOING INSIDE)");
-						b.agentIn(this.getHealthStatus().isInfectious());
-					}
-				}
-//				double inf = calcInfectiousness(this.currentBuilding);
-//				System.out.println("Agent "+this.getID()+"|Building "+this.currentBuilding+" = inf "+inf);
+				visitBuilding(true);
+				double inf = 0;
+//				synchronized (ContextManager.randomLock) {
+//					inf = this.currentBuilding.getAgentsInHouse();
+//					System.out.println(">>> Agent #"+this.getID()+": "+inf);
+//				}
 				this.alreadyUpdatedBuilding = true;
 			}
 		} else if (!this.route.atDestination()) {
 			//Agent is traveling
 			//for the first time, check the building (agent out)
 			if (this.alreadyUpdatedBuilding==false) {
-				this.nearbyBuildings = this.route.getPassedBuildings();
-				//agentIn
-				if (this.nearbyBuildings != null) {
-					System.out.println("Agent "+this.getID()+" traveling (left destination)");
-					for (Building b : this.nearbyBuildings) {
-						if (b.equals(this.currentBuilding)) {
-							System.out.println("Agent "+this.getID()+" HOUSES MATCH (GOING OUTSIDE)");
-							b.agentOut(this.getHealthStatus().isInfectious());
-							break;
-						}
-					}
-//					double inf = calcInfectiousness(this.currentBuilding);
-//					System.out.println("Agent "+this.getID()+"|Building "+this.currentBuilding+" = inf "+inf);
-					this.alreadyUpdatedBuilding = true;
-				}
-				//this.nearbyBuildings = null;
+				visitBuilding(false);
+				double inf = 0;
+//				synchronized (ContextManager.randomLock) {
+//					inf = this.currentBuilding.getAgentsInHouse();
+//					System.out.println(">>> Agent #"+this.getID()+": "+inf);
+//				}
+				this.alreadyUpdatedBuilding = true;
 			}
+				
+
 			this.route.travel();			
 
 		} else if (this.route.atDestination()) {
@@ -149,7 +142,28 @@ public class DefaultAgent implements IAgent {
 
 	} // step()
 
-	
+	public boolean visitBuilding(boolean amIGoingIn) {
+		synchronized (ContextManager.randomLock) {
+			Iterator<Building> bList = ContextManager.buildingContext.getRandomObjects(Building.class, 10000).iterator();
+			String msg = "";
+			while (bList.hasNext()) {
+				Building bld = bList.next();
+				if (bld.equals(currentBuilding)) {
+					if (amIGoingIn==true) {
+						msg = "IN";
+						bld.agentIn(this.getHealthStatus().isInfectious());
+						
+					} else {
+						msg = "OUT";
+						bld.agentOut(this.getHealthStatus().isInfectious());
+					}
+					System.out.println("Agent "+this.getID()+": GOING "+msg);
+					return true;
+				}
+			}
+		}
+		return false;
+	}
 
 	/** 
 	 * Calculate the infectiousness of whatever building
@@ -160,10 +174,10 @@ public class DefaultAgent implements IAgent {
 		double result = 0;
 		//count how many S/I people are in the building:
 		int allAgentsInBuilding=0, infectedAgentsInBuilding=0;
-		synchronized (ContextManager.randomLock) {
+		
 			allAgentsInBuilding = b.getAgentsInHouse();
 			infectedAgentsInBuilding = b.getInfected();
-		}		
+		
 		//count time
 		if (allAgentsInBuilding > 0) {
 			// the formula makes no sense.. I adapted it just to test, but

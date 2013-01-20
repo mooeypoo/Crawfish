@@ -30,8 +30,8 @@ public class Building implements FixedGeography, Identified {
 	/** Number of times this house has been burgled */
 	private int numBurglaries = 0;
 	
-	private int numInfectious = 0;
-	private int numTotalInHouse = 0;
+	private int numInfectious;
+	private int numTotalInHouse;
 	/** A list of agents who live here */
 	private List<IAgent> agents;
 
@@ -148,13 +148,17 @@ public class Building implements FixedGeography, Identified {
 			this.numInfectious++;
 		}
 		this.numTotalInHouse++;
+		System.out.println("Building #"+this.hashCode()+": AgentIn. Inf: "+this.numInfectious+"/"+this.numTotalInHouse);
 	}
 	
 	public synchronized void agentOut(boolean isInfectious) {
-		if (isInfectious == true) {
-			this.numInfectious--;
+		if (this.numInfectious>0 && this.numTotalInHouse>0) {
+			if (isInfectious == true) {
+				this.numInfectious--;
+			}
+			this.numTotalInHouse--;
 		}
-		this.numTotalInHouse--;
+		System.out.println("Building #"+this.hashCode()+": AgentIn. Inf: "+this.numInfectious+"/"+this.numTotalInHouse);
 	}
 	
 	public int getInfected() {
