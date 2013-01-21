@@ -36,7 +36,7 @@ public abstract class GlobalVars {
 	public static final String BuildingsRoadsCoordsCache = "BuildingsRoadsCoordsCache";
 	public static final String BuildingsRoadsCache = "BuildingsRoadsCache";
 
-	public static double InfectionFactor = 0.9;
+	public static double InfectionFactor;
 
 	/* Population Lists */
 	public static ArrayList<IAgent> popListAdult = new ArrayList<IAgent>();
@@ -83,10 +83,10 @@ public abstract class GlobalVars {
 	/** PARAMS **/
 	public static int NUM_OF_ADULTS;
 
-	public static final int hCOUNTER_EXPOSED = 1; //in days
-	public static final int hCOUNTER_INFECTED = 1; //in days
-	public static final int hCOUNTER_IMMUNE = 2; //in days
-	public static final double DISEASE_PERC_DEATHS = 0.99;
+	public static int hCOUNTER_EXPOSED; //in days
+	public static int hCOUNTER_INFECTED; //in days
+	public static int hCOUNTER_IMMUNE; //in days
+	public static double DISEASE_PERC_DEATHS;
 	/** **/
 	
 	

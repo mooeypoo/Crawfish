@@ -188,7 +188,23 @@ public class ContextManager implements ContextBuilder<Object> {
 			LOGGER.log(Level.SEVERE, "Could not find an input shapefile to read objects from.", e);
 			return null;
 		}
-
+		
+		try{
+			GlobalVars.NUM_OF_ADULTS = Integer.parseInt(ContextManager.getParameter("NUM_OF_ADULTS").toString());
+			GlobalVars.hCOUNTER_EXPOSED = Integer.parseInt(ContextManager.getParameter("EXPOSED_TO_INF").toString());
+			GlobalVars.hCOUNTER_INFECTED = Integer.parseInt(ContextManager.getParameter("INFECTED_TO_RECOVERY").toString());
+			GlobalVars.hCOUNTER_IMMUNE =  Integer.parseInt(ContextManager.getParameter("IMMUNE_DAYS").toString());
+			GlobalVars.DISEASE_PERC_DEATHS = Double.parseDouble(ContextManager.getParameter("MORTALITY_RATE").toString());
+			
+			GlobalVars.InfectionFactor = Double.parseDouble(ContextManager.getParameter("DIS_INFECTION_RATE").toString());
+			GlobalVars.INITIAL_INFECTED_ADULTS = Integer.parseInt(ContextManager.getParameter("INITIAL_INFECTED_ADULTS").toString());
+			GlobalVars.INITIAL_INFECTED_TEENS = Integer.parseInt(ContextManager.getParameter("INITIAL_INFECTED_TEENS").toString());
+			GlobalVars.INITIAL_INFECTED_CHILDREN = Integer.parseInt(ContextManager.getParameter("INITIAL_INFECTED_CHILDREN").toString());
+			
+		}catch(ParameterNotFoundException e){
+			LOGGER.log(Level.SEVERE, "Could not find a parameter required to initialize the values", e);
+			return null;
+		}
 		// Now create the agents (note that their step methods are scheduled later
 		try {
 
@@ -223,6 +239,8 @@ public class ContextManager implements ContextBuilder<Object> {
 			return null;
 		}
 
+		// INITIAL VALUES
+		
 
 		
 		// INSERT ROAD CLOSURE CODE HERE

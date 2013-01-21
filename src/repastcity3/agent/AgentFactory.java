@@ -227,7 +227,9 @@ public class AgentFactory {
 		
 		LOGGER.info("Done. Created " + count_people + " adults, and " + count_Children + " children.");
 		LOGGER.info("There are "+infectedCounter+" initial infected: "+infAcounter+" Adults, "+infCcounter+ " Children, "+infTcounter +" Teens.");
-		
+		LOGGER.info("Checking purpose "+infectedCounter+" initial infected: "+GlobalVars.INITIAL_INFECTED_ADULTS+" Adults, "+GlobalVars.INITIAL_INFECTED_CHILDREN+ " Children, "+GlobalVars.INITIAL_INFECTED_TEENS +" Teens.");
+		LOGGER.info("Infection Factor"+GlobalVars.InfectionFactor+" Death Rate "+GlobalVars.DISEASE_PERC_DEATHS+" immune days: "+GlobalVars.hCOUNTER_IMMUNE+" Exposed-> Inf "+GlobalVars.hCOUNTER_EXPOSED+ " Inf->R/D  "+GlobalVars.hCOUNTER_INFECTED );
+	
 	}
 
 
