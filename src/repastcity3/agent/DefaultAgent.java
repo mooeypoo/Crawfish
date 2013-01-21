@@ -102,50 +102,50 @@ public class DefaultAgent implements IAgent {
 				// Leaving towards new destination.
 				this.alreadyUpdatedBuilding = false;
 				this.route = new Route(this, nextDestBuilding.getCoords(), nextDestBuilding); // Create a route to work
-//				if (this.currentBuilding != null) {
-//					this.previousBuilding = this.currentBuilding;
-//				}
-//				this.currentBuilding = nextDestBuilding;
 			}
 		}
 		
-		/// Infection status counters:
-		if (this.isImmune == true) {
-			this.cHealthImmune++;
-			if (this.cHealthImmune >= GlobalVars.hCOUNTER_IMMUNE) {
-				this.isImmune = false;
-				this.cHealthImmune = 0;
-				System.err.println("Agent "+this.getID()+": No longer immune.");
-			}
-		} else {
-			if (this.getHealthStatus() == DiseaseStages.E) {
-				this.cHealthExposed++;
-				if (this.cHealthExposed >= GlobalVars.hCOUNTER_EXPOSED) {
-					//move on to next stage:
-					this.setHealthStatus(DiseaseStages.I);
-					this.cHealthExposed=0;
-					System.err.println("Agent "+this.getID()+": Now INFECTED.");
+		if (theTime==0.0) {
+			/// Infection status counters:
+			if (this.isImmune == true) {
+				this.cHealthImmune++;
+				if (this.cHealthImmune >= GlobalVars.hCOUNTER_IMMUNE) {
+					this.isImmune = false;
+					this.cHealthImmune = 0;
+					System.err.println("Agent "+this.getID()+": No longer immune.");
 				}
-			} else if (this.getHealthStatus() == DiseaseStages.I) {
-				this.cHealthInfected++;
-				if (this.cHealthInfected >= GlobalVars.hCOUNTER_INFECTED) {
-					//move on to next stage:
-					/*****************************************
-					 *****************************************
-					 *****************************************
-					 *****************************************
-					 * SET PERCENTAGE OF DEATH HERE
-					 *****************************************
-					 *****************************************
-					 *****************************************
-					 *****************************************
-					 */
-					System.err.println("Agent "+this.getID()+": Now BACK TO SUSCEPTIBE.");
-					this.setHealthStatus(DiseaseStages.S); //back to susceptible
-					this.cHealthInfected=0;
+			} else {
+				if (this.getHealthStatus() == DiseaseStages.E) {
+					this.cHealthExposed++;
+					if (this.cHealthExposed >= GlobalVars.hCOUNTER_EXPOSED) {
+						//move on to next stage:
+						this.setHealthStatus(DiseaseStages.I);
+						this.cHealthExposed=0;
+						System.err.println("Agent "+this.getID()+": Now INFECTED.");
+					}
+				} else if (this.getHealthStatus() == DiseaseStages.I) {
+					this.cHealthInfected++;
+					if (this.cHealthInfected >= GlobalVars.hCOUNTER_INFECTED) {
+						//move on to next stage:
+						/*****************************************
+						 *****************************************
+						 *****************************************
+						 *****************************************
+						 * SET PERCENTAGE OF DEATH HERE
+						 *****************************************
+						 *****************************************
+						 *****************************************
+						 *****************************************
+						 */
+						System.err.println("Agent "+this.getID()+": Now BACK TO SUSCEPTIBE.");
+						this.setHealthStatus(DiseaseStages.S); //back to susceptible
+						this.cHealthInfected=0;
+					}
 				}
 			}
 		}
+		
+		
 		
 		/** ROUTE DEFINITIONS **/
 		if (this.route == null) {
@@ -160,9 +160,9 @@ public class DefaultAgent implements IAgent {
 			//for the first time, check the building (agent in):
 			if (this.alreadyUpdatedBuilding == false) {
 				//agentIn
-				if (!visitBuilding(this.previousBuilding,false)) {//go out
-					System.err.println("ERR: NO BUILDING FOUND (previousBuilding)");
-				}
+//				if (!visitBuilding(this.previousBuilding,false)) {//go out
+//					System.err.println("ERR: NO BUILDING FOUND (previousBuilding)");
+//				}
 				if (!visitBuilding(this.currentBuilding,true)) { //go in
 					System.err.println("ERR: NO BUILDING FOUND (currentBuilding)");
 				}
@@ -171,7 +171,7 @@ public class DefaultAgent implements IAgent {
 			}
 		} else if (!this.route.atDestination()) {
 			//Agent is traveling
-			//for the first time, check the building (agent out)
+
 			this.alreadyUpdatedBuilding = false;
 			this.route.travel();			
 
@@ -180,7 +180,6 @@ public class DefaultAgent implements IAgent {
 
 			this.previousBuilding = this.currentBuilding;
 			this.currentBuilding = this.route.getDestinationBuilding();
-
 			if (this.alreadyUpdatedBuilding==false) {
 				
 				// CALCULATE INFECTIOUSNESS
@@ -202,7 +201,8 @@ public class DefaultAgent implements IAgent {
 					}
 				}
 			}
-			
+
+			this.alreadyUpdatedBuilding = false;
 			this.timeSpentInLocation = 0;
 			this.route = null;
 		}
@@ -210,26 +210,23 @@ public class DefaultAgent implements IAgent {
 	} // step()
 
 	public boolean visitBuilding(Building b, boolean amIGoingIn) {
-		if (this.getHealthStatus().isInfectious() == true) {
-			synchronized (ContextManager.randomLock) {
-				Iterator<Building> bList = ContextManager.buildingContext.getRandomObjects(Building.class, 10000).iterator();
-				String msg = "";
-				while (bList.hasNext()) {
-					Building bld = bList.next();
-					if (bld.equals(b)) {
-						if (amIGoingIn==true) {
-							msg = "IN";
-							bld.agentIn(this.getID(), this.getHealthStatus().isInfectious());
-							
-						} else {
-							msg = "OUT";
-//							bld.agentOut(this.getID());
-							//// DO THE INFECTION CHECK:
-						}
-						System.out.println("Agent "+this.getID()+": GOING "+msg);
-						return true;
-					} 
-				}
+		synchronized (ContextManager.randomLock) {
+			Iterator<Building> bList = ContextManager.buildingContext.getRandomObjects(Building.class, 10000).iterator();
+			String msg = "";
+			while (bList.hasNext()) {
+				Building bld = bList.next();
+				if (bld.equals(b)) {
+					if (amIGoingIn==true) {
+						msg = "IN";
+						bld.agentIn(this.getID(), this.getHealthStatus().isInfectious());
+						
+					} else {
+						msg = "OUT";
+//							bld.agentOut(this.getID(), this.getHealthStatus().isInfectious());
+					}
+					System.out.println("Agent "+this.getID()+": GOING "+msg);
+					return true;
+				} 
 			}
 		}
 		return false;

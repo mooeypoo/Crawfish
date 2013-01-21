@@ -153,11 +153,11 @@ public class Building implements FixedGeography, Identified {
 			this.sickAgents.add(agentID);
 			System.err.println("Agent "+agentID+" Added to sickAgents.");
 		} else {
-			System.err.println("Agent "+agentID+" NOT ADDED! Params: "+agentID+" / "+isInfected);
+			System.err.println("Agent "+agentID+" NOT ADDED! Params: "+agentID+"("+this.sickAgents.indexOf(agentID)+")"+" / "+isInfected);
 		}
 	}
 	
-	public synchronized void agentOut(boolean isInfectious) {
+	public synchronized void agentOut(int agentID, boolean isInfectious) {
 /*
 		if (this.numInfectious>0 && this.numTotalInHouse>0) {
 			if (isInfectious == true) {
@@ -170,14 +170,11 @@ public class Building implements FixedGeography, Identified {
 	}
 	
 	public synchronized int getInfected() {
-		System.err.println("B#"+this.hashCode()+" sickAgents size: "+this.sickAgents.size());
+		//System.err.println("B#"+this.hashCode()+" sickAgents size: "+this.sickAgents.size());
 		return this.sickAgents.size();
 		//return this.numInfectious;
 	}
 	
-	public int getAgentsInHouse() {
-		return this.numTotalInHouse;
-	}
 	/*** END INFECTIOUSNESS **/
 	
 	
