@@ -40,7 +40,7 @@ public class AgentFactory {
 	private static Logger LOGGER = Logger.getLogger(AgentFactory.class.getName());
 
 	/** WE SHOULD ADD THESE TO THE PARAMETERS!!! **/
-	private static final int TOTAL_POPULATION_NUMBER = 1000; // This will be approximate (close enough)
+	public static final int TOTAL_POPULATION_NUMBER = 1000; // This will be approximate (close enough)
 
 	private static final double PERC_ADULTS_MARRIED = 0.85; // 85% (out of all adults)
 	private static final double PERC_ADULTS_WCHILD = 0.8; 	// 80% (out of married adults)
@@ -334,7 +334,7 @@ public class AgentFactory {
 
 		if (index > -1) {
 			pHome.addAgent(GlobalVars.popListAdult.get(index));
-			pHome.agentIn(false);
+			pHome.agentIn(GlobalVars.popListAdult.get(index).getID(), false);
 		}
 		return index;
 	}
@@ -344,8 +344,8 @@ public class AgentFactory {
 		if (index > -1) {
 			GlobalVars.popListChild.get(index).setMother(pMother);
 			GlobalVars.popListChild.get(index).setFather(pFather);
-			pHome.addAgent(GlobalVars.popListAdult.get(index));
-			pHome.agentIn(false);
+			pHome.addAgent(GlobalVars.popListChild.get(index));
+			pHome.agentIn(GlobalVars.popListChild.get(index).getID(), false);
 		}
 		return index;
 	}

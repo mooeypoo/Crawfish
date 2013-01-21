@@ -36,6 +36,11 @@ public class Building implements FixedGeography, Identified {
 	private List<IAgent> agents;
 
 	/**
+	 * List of agent IDs of sick agents who visited this building
+	 */
+	private List<Integer> sickAgents = new ArrayList<Integer>();
+	
+	/**
 	 * A unique identifier for buildings, usually set from the 'identifier' column in a shapefile
 	 */
 	private String identifier;
@@ -143,15 +148,17 @@ public class Building implements FixedGeography, Identified {
 	}
 
 	/*** INFECTIOUSNESS **/
-	public synchronized void agentIn(boolean isInfectious) {
-		if (isInfectious == true) {
-			this.numInfectious++;
+	public synchronized void agentIn(int agentID, Boolean isInfected) {
+		if (this.sickAgents.indexOf(agentID) == -1 && isInfected==true) {
+			this.sickAgents.add(agentID);
+			System.err.println("Agent "+agentID+" Added to sickAgents.");
+		} else {
+			System.err.println("Agent "+agentID+" NOT ADDED! Params: "+agentID+" / "+isInfected);
 		}
-		this.numTotalInHouse++;
-		System.out.println("Building #"+this.hashCode()+": AgentIn. Inf: "+this.numInfectious+"/"+this.numTotalInHouse);
 	}
 	
 	public synchronized void agentOut(boolean isInfectious) {
+/*
 		if (this.numInfectious>0 && this.numTotalInHouse>0) {
 			if (isInfectious == true) {
 				this.numInfectious--;
@@ -159,10 +166,13 @@ public class Building implements FixedGeography, Identified {
 			this.numTotalInHouse--;
 		}
 		System.out.println("Building #"+this.hashCode()+": AgentIn. Inf: "+this.numInfectious+"/"+this.numTotalInHouse);
+*/
 	}
 	
-	public int getInfected() {
-		return this.numInfectious;
+	public synchronized int getInfected() {
+		System.err.println("B#"+this.hashCode()+" sickAgents size: "+this.sickAgents.size());
+		return this.sickAgents.size();
+		//return this.numInfectious;
 	}
 	
 	public int getAgentsInHouse() {

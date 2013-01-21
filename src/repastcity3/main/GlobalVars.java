@@ -42,7 +42,10 @@ public abstract class GlobalVars {
 	public static ArrayList<IAgent> popListAdult = new ArrayList<IAgent>();
 	public static ArrayList<IAgent> popListChild = new ArrayList<IAgent>();
 	
-	
+	public static final int hCOUNTER_EXPOSED = 1; //in days
+	public static final int hCOUNTER_INFECTED = 1; //in days
+	public static final int hCOUNTER_IMMUNE = 2; //in days
+
 	public static boolean isDebug = false;
 	
 	public static final int ACT_HOME = 0;
