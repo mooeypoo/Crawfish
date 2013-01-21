@@ -44,6 +44,7 @@ public class DefaultAgent implements IAgent {
 	
 	private double timeSpentInLocation = 0;
 
+
 	/**
 	 * Boolean stayHome
 	 * false if going to work/school/kindergarden
@@ -51,14 +52,15 @@ public class DefaultAgent implements IAgent {
 	 */
 	private Boolean stayHome = false; //set true if parent of a sick child
 	
-	private List<Building> nearbyBuildings = new ArrayList<Building>();;
+	private List<Building> nearbyBuildings = new ArrayList<Building>();
+//	private List<Building> buildingsVisitedToday = new ArrayList<Building>();
 
 	private Building home; // Where the agent lives
 	private Building workplace; // Where the agent works
 	private Building mall; // random mall for recreation
 	private Route route; // An object to move the agent around the world
 
-	private Building previousBuilding = null; //whatever we visited last
+	private Building previousBuilding; //whatever we visited last
 	private Building currentBuilding; //the building the agent is currently located
 	private boolean alreadyUpdatedBuilding = false;
 	private boolean goingHome = false; // Whether the agent is going to or from their home
@@ -75,6 +77,8 @@ public class DefaultAgent implements IAgent {
 	
 	public DefaultAgent() {
 //		this.workplace = createWorkplace();
+		this.previousBuilding = this.home;
+		this.currentBuilding = this.home;
 	}
 
 	@Override
@@ -91,7 +95,10 @@ public class DefaultAgent implements IAgent {
 				// Leaving towards new destination.
 				this.alreadyUpdatedBuilding = false;
 				this.route = new Route(this, nextDestBuilding.getCoords(), nextDestBuilding); // Create a route to work
-				this.currentBuilding = nextDestBuilding;
+//				if (this.currentBuilding != null) {
+//					this.previousBuilding = this.currentBuilding;
+//				}
+//				this.currentBuilding = nextDestBuilding;
 			}
 		}
 		
@@ -108,30 +115,31 @@ public class DefaultAgent implements IAgent {
 			//for the first time, check the building (agent in):
 			if (this.alreadyUpdatedBuilding == false) {
 				//agentIn
+				visitBuilding(this.previousBuilding,false); //go out
 				visitBuilding(this.currentBuilding,true); //go in
-//				visitBuilding(this.previousBuilding,false); //go out
 				this.alreadyUpdatedBuilding = true;
 			}
 		} else if (!this.route.atDestination()) {
 			//Agent is traveling
 			//for the first time, check the building (agent out)
-			if (this.alreadyUpdatedBuilding==false) {
-				
-				visitBuilding(this.currentBuilding,false); //go out
-//				moved above as an attempt to make sure
-//				all agents leave at once
-				this.previousBuilding = this.currentBuilding;
-				this.alreadyUpdatedBuilding = true;
-			}
-				
-
+			this.alreadyUpdatedBuilding = false;
 			this.route.travel();			
 
 		} else if (this.route.atDestination()) {
 			//Agent reached destination. 
-			this.nearbyBuildings = this.route.getPassedBuildings();
+			this.previousBuilding = this.currentBuilding;
+			this.currentBuilding = this.route.getDestinationBuilding();
+//			this.nearbyBuildings = this.route.getPassedBuildings();
+			if (this.alreadyUpdatedBuilding==false) {
+				// CALCULATE INFECTIOUSNESS
+				if (this.previousBuilding !=null) {
+					double num = this.calcInfectiousness(this.previousBuilding);
+					System.out.println("["+theTime+"] *** Building #"+this.previousBuilding.hashCode()+ "["+this.previousBuilding.getType()+"] infectiousness: "+num);
+					this.alreadyUpdatedBuilding = true;
+				}
+			}
+			
 			this.timeSpentInLocation = 0;
-			this.alreadyUpdatedBuilding = false;
 			this.route = null;
 		}
 
@@ -168,20 +176,30 @@ public class DefaultAgent implements IAgent {
 	public double calcInfectiousness(Building b) {
 		double result = 0;
 		//count how many S/I people are in the building:
-		int allAgentsInBuilding=0, infectedAgentsInBuilding=0;
-		
-			allAgentsInBuilding = b.getAgentsInHouse();
-			infectedAgentsInBuilding = b.getInfected();
-		
-		//count time
-		if (allAgentsInBuilding > 0) {
-			// the formula makes no sense.. I adapted it just to test, but
-			// we need to figure it out... (talk to me i'll explain)
-			result = GlobalVars.InfectionFactor * this.timeSpentInLocation * (infectedAgentsInBuilding / allAgentsInBuilding);
+		if (b != null) {
+			int allAgentsInBuilding=0, infectedAgentsInBuilding=0;
+			
+				allAgentsInBuilding = b.getAgentsInHouse();
+				infectedAgentsInBuilding = b.getInfected();
+			
+			//count time
+			if (allAgentsInBuilding > 0) {
+				// the formula makes no sense.. I adapted it just to test, but
+				// we need to figure it out... (talk to me i'll explain)
+				
+				result = infEquation(infectedAgentsInBuilding, allAgentsInBuilding, this.timeSpentInLocation);//(5)*GlobalVars.InfectionFactor * (1)*(this.timeSpentInLocation / 1000) * (4)*(infectedAgentsInBuilding / allAgentsInBuilding) * 10;
+			}
+		} else {
+			System.out.println("BUILDING IS NULL!!!");
 		}
 		return result;
 	}
 
+	public double infEquation(int infected, int total, double time) {
+		double ans = 0;
+		ans = (5)*GlobalVars.InfectionFactor * (1)*(time / 1000) * (4)*(infected / total) * 10;
+		return ans;
+	}
 	
 	/**
 	 * Find the next building to go to based on person's
@@ -203,7 +221,42 @@ public class DefaultAgent implements IAgent {
 				} else if (this.getType() == GlobalVars.P_CHILD) {
 					nextPlaceStr = "Kindergarten " + nextPlace.getType();
 				}
-			}
+				
+				//check household infectiousness:
+/*				Iterator<IAgent> famMember = this.home.getAgents().iterator();
+				int numInfected=0;
+				int numTotal = this.home.getAgents().size();
+				while (famMember.hasNext()) {
+					IAgent person = famMember.next();
+					if (person.getType()==GlobalVars.P_ADULT) {
+						if ((GlobalVars.popListAdult.get(person.getID()).getHealthStatus().isInfectious())) {
+							numInfected++;
+						}
+					} else {
+						if ((GlobalVars.popListChild.get(person.getID()).getHealthStatus().isInfectious())) {
+							numInfected++;
+						}
+					}
+				}
+				/////// CALCULATE INFECTIOUSNESS AT HOME:
+				if (numInfected>0) {
+					//////////////////////////////////////
+					//////////////////////////////////////
+					//////////////////////////////////////
+					//////////////////////////////////////
+					//////////////////////////////////////
+					//////////////////////////////////////
+					//////////////////////////////////////
+					double infness = 0;
+					infness = this.infEquation(numInfected, numTotal, timeSpentInLocation);
+					System.out.println("Household #"+this.home.hashCode()+": "+infness);
+					//////////////////////////////////////
+					//////////////////////////////////////
+					//////////////////////////////////////
+					//////////////////////////////////////
+				}
+				
+			}*/
 			
 			if(this.getType() == GlobalVars.P_CHILD){
 				if(currTime == 18.0){
@@ -219,16 +272,16 @@ public class DefaultAgent implements IAgent {
 				if (this.isHasChildren() == false) {
 					if (currTime == 20.0) { // 20:00
 						nextPlace = findBuilding(GlobalVars.ACT_MALL);
-						nextPlaceStr = "Evening Drinks!" + nextPlace.getType();
+						nextPlaceStr = "Evening Drinks! " + nextPlace.getType();
 					} else if (currTime == 23.0) { // 23:00
 						nextPlace = this.home;
-						nextPlaceStr = "Home";
+						nextPlaceStr = "Home ";
 					}
 				}
 			} else if (this.getType() == GlobalVars.P_TEEN) { 
 				if (currTime == 15.00) {
 					nextPlace = this.home;
-					nextPlaceStr = "Home" + nextPlace.getType();
+					nextPlaceStr = "Home " + nextPlace.getType();
 				}
 			}
 		} else { // stayhome == true
@@ -245,8 +298,6 @@ public class DefaultAgent implements IAgent {
 //			System.out.println(currTime + " ["+this.getType()+"] Agent "+this.getID() + " --> " + nextPlaceStr);
 			//double realTimeTranslation = (timeSpentInLocation/3)*60;
 //			System.out.println("	> Time spent at previous location: " + timeSpentInLocation); // + " ticks ("+realTimeTranslation+" h)");
-			double num = this.calcInfectiousness(nextPlace);
-			System.out.println("Building #"+nextPlace.getID()+" infectiousness: "+num);
 			/** 
 			 * Agent is leaving towards a new destination. 
 			 * Make sure the time counter is back to zero
@@ -371,7 +422,7 @@ public class DefaultAgent implements IAgent {
 					parentIndex = this.getFather();
 				}
 				GlobalVars.popListAdult.get(parentIndex).setStayHome(true);
-			} else if (this.getType() == GlobalVars.P_CHILD) {
+			} else if (this.getType() == GlobalVars.P_TEEN) {
 				this.stayHome = true;
 			} else {
 				//don't do anything for adults

@@ -628,7 +628,8 @@ public class ContextManager implements ContextBuilder<Object> {
 
 	@ScheduledMethod(start=1, interval=1, priority=10)
 	public void updateRealTime() {
-	        realTime += 3*(1.0/60.0); //(1.0/60.0); // Increase the time by one minute (a 60th of an hour)
+//        realTime += 3*(1.0/60.0); //(1.0/60.0); // Increase the time by one minute (a 60th of an hour)
+        realTime += (1.0/60.0); //(1.0/60.0); // Increase the time by one minute (a 60th of an hour)
 	        if (realTime >= 24.0) { // If it's the end of a day then reset the time
 	                realTime = 0.0;
 	                numberOfDays++; // Also increment our day counter
