@@ -380,7 +380,7 @@ public class DefaultAgent implements IAgent {
 						msg = "OUT";
 //							bld.agentOut(this.getID(), this.getHealthStatus().isInfectious());
 					}
-					System.out.println("Agent "+this.getID()+": GOING "+msg);
+//					System.out.println("Agent "+this.getID()+": GOING "+msg);
 					return true;
 				} 
 			}
@@ -405,9 +405,9 @@ public class DefaultAgent implements IAgent {
 				}
 				int sickPop = b.getInfected();
 				result = infEquation(sickPop, totalPop, this.timeSpentInLocation);
-				System.out.println("B#"+b.hashCode()+" Infness: "+result);
+//				System.out.println("B#"+b.hashCode()+" Infness: "+result);
 			} else {
-				System.out.println("ERROR: BUILDING IS NULL!!!");
+				System.err.println("ERROR: BUILDING IS NULL!!!");
 			}
 		return result;
 	}
@@ -416,8 +416,8 @@ public class DefaultAgent implements IAgent {
 		double ans = 0;
 		double dInfected = (double) infected;
 		double dTotal = (double) total;
-		ans = (5.0)*GlobalVars.InfectionFactor * (1.0)*(time / 1000) * (4.0)*(dInfected / dTotal) * 100;
-		System.err.println("ANS: "+ans+"-> (5.0)*"+GlobalVars.InfectionFactor+" * (1.0)*("+time+" / 1000) * (4.0)*("+dInfected+" / "+dTotal+") * 100");
+		ans = (5.0)*GlobalVars.InfectionFactor * (1.0)*(time / 1000) * (4.0)*(dInfected / (dTotal/4)) * 100;
+		System.err.println("ANS: "+ans+"-> (5.0)*"+GlobalVars.InfectionFactor+" * (1.0)*("+time+" / 1000) * (4.0)*("+dInfected+" / "+(dTotal/4)+") * 100");
 		return ans;
 	}
 	
