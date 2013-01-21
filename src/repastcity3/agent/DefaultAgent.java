@@ -110,6 +110,18 @@ public class DefaultAgent implements IAgent {
 		}
 		
 		if (theTime==0.0) {
+			//Check health status at home:
+			/****************************************************/
+			double oddsOfInfectiousness = this.calcInfectiousness(this.home);
+			if (checkIfAgentIsSick(oddsOfInfectiousness)) {
+				//sick
+				System.out.println("Agent#"+this.getID()+": (At Home) EXPOSED");
+			} else {
+				//not sick
+				System.out.println("Agent#"+this.getID()+": (At Home) NOT EXPOSED");
+			}
+			/****************************************************/
+			
 			/// Infection status counters:
 			if (this.isImmune == true) {
 				this.cHealthImmune++;
@@ -131,16 +143,6 @@ public class DefaultAgent implements IAgent {
 					this.cHealthInfected++;
 					if (this.cHealthInfected >= GlobalVars.hCOUNTER_INFECTED) {
 						//move on to next stage:
-						/*****************************************
-						 *****************************************
-						 *****************************************
-						 *****************************************
-						 ***    SET PERCENTAGE OF DEATH HERE   *** 
-						 *****************************************
-						 *****************************************
-						 *****************************************
-						 *****************************************
-						 */
 						Random randomGenerator = new Random(123987);
 						int randDice = randomGenerator.nextInt(100);
 						if (randDice <= (GlobalVars.DISEASE_PERC_DEATHS)) {
@@ -296,6 +298,20 @@ public class DefaultAgent implements IAgent {
 				if (this.previousBuilding !=null) {
 					if (this.isImmune==false) { // && this.getHealthStatus().isInfectious()==false) {
 						double oddsOfInfectiousness = this.calcInfectiousness(this.previousBuilding);
+						if (checkIfAgentIsSick(oddsOfInfectiousness)) {
+							//sick
+							System.out.println("Agent#"+this.getID()+": EXPOSED");
+						} else {
+							//not sick
+							System.out.println("Agent#"+this.getID()+": NOT EXPOSED");
+						}
+						
+/***************************************************
+ * 
+ * 
+
+						
+						double oddsOfInfectiousness = this.calcInfectiousness(this.previousBuilding);
 						System.out.println("["+theTime+"] *** Building #"+this.previousBuilding.hashCode()+ "["+this.previousBuilding.getType()+"] infectiousness: "+oddsOfInfectiousness);
 						// Toss the dice:
 						Random randomGenerator = new Random(123987);
@@ -306,6 +322,7 @@ public class DefaultAgent implements IAgent {
 						} else {
 							System.err.println("Agent #"+this.getID() + " is SAFE! (Not Infected)");
 						}
+*/						
 						this.alreadyUpdatedBuilding = true;
 					}
 				}
@@ -325,6 +342,24 @@ public class DefaultAgent implements IAgent {
 
 	} // step()
 
+	public boolean checkIfAgentIsSick(double oddsOfInfectiousness) {
+		boolean isSick = false;
+//		double oddsOfInfectiousness = this.calcInfectiousness(this.previousBuilding);
+//		System.out.println("["+theTime+"] *** Building #"+this.previousBuilding.hashCode()+ "["+this.previousBuilding.getType()+"] infectiousness: "+oddsOfInfectiousness);
+		// Toss the dice:
+		Random randomGenerator = new Random(123987);
+		int randDice = randomGenerator.nextInt(100);
+		if (randDice <= oddsOfInfectiousness) {
+			this.setHealthStatus(DiseaseStages.E);
+			isSick = true;
+//			System.err.println("Agent #"+this.getID() + " is Infected");
+		} else {
+//			System.err.println("Agent #"+this.getID() + " is SAFE! (Not Infected)");
+			isSick = false;
+		}
+		return isSick;
+	}
+	
 	public boolean visitBuilding(Building b, boolean amIGoingIn) {
 		synchronized (ContextManager.randomLock) {
 			Iterator<Building> bList = ContextManager.buildingContext.getRandomObjects(Building.class, 10000).iterator();
