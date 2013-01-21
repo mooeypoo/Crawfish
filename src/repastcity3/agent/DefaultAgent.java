@@ -64,6 +64,7 @@ public class DefaultAgent implements IAgent {
 	private Building currentBuilding; //the building the agent is currently located
 	private boolean alreadyUpdatedBuilding = false;
 	private boolean goingHome = false; // Whether the agent is going to or from their home
+	private boolean isHome = true;
 	
 	private int agentType = 0;
 	
@@ -95,13 +96,16 @@ public class DefaultAgent implements IAgent {
 		double theTime = BigDecimal.valueOf(ContextManager.realTime).
 		        round(new MathContext(5,RoundingMode.HALF_UP)).doubleValue();
 
-		//to save calculation time, only check agenda items on 60-min intervals:
-		if ((theTime%0.5) == 0) {
-			Building nextDestBuilding = this.getNextAgendaItem(theTime);
-			if ((nextDestBuilding != null)) { 
-				// Leaving towards new destination.
-				this.alreadyUpdatedBuilding = false;
-				this.route = new Route(this, nextDestBuilding.getCoords(), nextDestBuilding); // Create a route to work
+		//skip everything if the user is going home:
+		if (this.getGoHome()==false) {
+			//to save calculation time, only check agenda items on 60-min intervals:
+			if ((theTime%0.5) == 0) {
+				Building nextDestBuilding = this.getNextAgendaItem(theTime);
+				if ((nextDestBuilding != null)) { 
+					// Leaving towards new destination.
+					this.alreadyUpdatedBuilding = false;
+					this.route = new Route(this, nextDestBuilding.getCoords(), nextDestBuilding); // Create a route to work
+				}
 			}
 		}
 		
@@ -269,16 +273,25 @@ public class DefaultAgent implements IAgent {
 			//Agent is traveling
 
 			this.alreadyUpdatedBuilding = false;
-			this.route.travel();			
+			if (this.getStayHome()==true && this.getIsHome()==true) {
+				//stay home.
+				System.out.println("Agent" + this.getID()+ " STAYS HOME.");
+			} else {
+				this.route.travel();
+			}
 
 		} else if (this.route.atDestination()) {
 			//Agent reached destination. 
-
 			this.previousBuilding = this.currentBuilding;
 			this.currentBuilding = this.route.getDestinationBuilding();
 			if (this.alreadyUpdatedBuilding==false) {
 				
 				// CALCULATE INFECTIOUSNESS
+				if (this.route.getDestinationBuilding().equals(this.home)) {
+					this.setIsHome(true);
+				} else {
+					this.setIsHome(false);
+				}
 
 				if (this.previousBuilding !=null) {
 					if (this.isImmune==false) { // && this.getHealthStatus().isInfectious()==false) {
@@ -298,9 +311,16 @@ public class DefaultAgent implements IAgent {
 				}
 			}
 
-			this.alreadyUpdatedBuilding = false;
-			this.timeSpentInLocation = 0;
-			this.route = null;
+			if (this.getGoHome()==true && this.getIsHome()==false) {
+				// SEND AGENT HOME:
+				this.route = new Route(this, this.home.getCoords(), this.home); // Create a route to home
+				System.out.println("Agent" + this.getID()+ " IS GOING HOME.");
+				
+			} else {
+				this.route = null;
+				this.alreadyUpdatedBuilding = false;
+				this.timeSpentInLocation = 0;
+			}
 		}
 
 	} // step()
@@ -386,41 +406,6 @@ public class DefaultAgent implements IAgent {
 				} else if (this.getType() == GlobalVars.P_CHILD) {
 					nextPlaceStr = "Kindergarten " + nextPlace.getType();
 				}
-				
-				//check household infectiousness:
-/*				Iterator<IAgent> famMember = this.home.getAgents().iterator();
-				int numInfected=0;
-				int numTotal = this.home.getAgents().size();
-				while (famMember.hasNext()) {
-					IAgent person = famMember.next();
-					if (person.getType()==GlobalVars.P_ADULT) {
-						if ((GlobalVars.popListAdult.get(person.getID()).getHealthStatus().isInfectious())) {
-							numInfected++;
-						}
-					} else {
-						if ((GlobalVars.popListChild.get(person.getID()).getHealthStatus().isInfectious())) {
-							numInfected++;
-						}
-					}
-				}
-				/////// CALCULATE INFECTIOUSNESS AT HOME:
-				if (numInfected>0) {
-					//////////////////////////////////////
-					//////////////////////////////////////
-					//////////////////////////////////////
-					//////////////////////////////////////
-					//////////////////////////////////////
-					//////////////////////////////////////
-					//////////////////////////////////////
-					double infness = 0;
-					infness = this.infEquation(numInfected, numTotal, timeSpentInLocation);
-					System.out.println("Household #"+this.home.hashCode()+": "+infness);
-					//////////////////////////////////////
-					//////////////////////////////////////
-					//////////////////////////////////////
-					//////////////////////////////////////
-				}
-*/	
 			}
 			
 			if(this.getType() == GlobalVars.P_CHILD){
@@ -449,12 +434,8 @@ public class DefaultAgent implements IAgent {
 					nextPlaceStr = "Home " + nextPlace.getType();
 				}
 			}
-		} else { // stayhome == true
-/*			// send member home only if they're not already there:
-			if (!this.route.getDestinationBuilding().equals(this.home)) { 
-				nextPlace = this.home;
-				nextPlaceStr = "Home (stay home)";
-			}*/
+		} else { 
+			// stayhome == true
 		}
 		
 		if (nextPlace == null) {
@@ -577,13 +558,16 @@ public class DefaultAgent implements IAgent {
 		if (st == DiseaseStages.D) {
 			//agent is dead!
 			System.err.println("AGENT" + this.getID() + ": DEAD.");
-			this.stayHome=true;
+			this.setStayHome(true);
+			//don't go anywhere
 			return;
 		}
 		
 		if (st.isSymptomatic() == true) {
 			if (this.getType() == GlobalVars.P_CHILD) {
-				this.stayHome = true;
+				this.setStayHome(true);
+				this.setGoHome(true);
+
 				//randomly pick a parent to stay with the child:
 				Random randomGenerator = new Random(123987);
 				int rand = randomGenerator.nextInt(2);
@@ -595,13 +579,15 @@ public class DefaultAgent implements IAgent {
 				}
 				GlobalVars.popListAdult.get(parentIndex).setStayHome(true);
 			} else if (this.getType() == GlobalVars.P_TEEN) {
-				this.stayHome = true;
+				this.setStayHome(true);
+				this.setGoHome(true);
 			} else {
 				//don't do anything for adults
 			}
 		} else {
 			if (this.getType() == GlobalVars.P_CHILD) {
-				this.stayHome = false;
+				this.setStayHome(false);
+				this.setGoHome(false);
 				//let the parent go back to work (unless sibling is sick):
 				if (this.getSibling()>-1) {
 					if ((GlobalVars.popListChild.get(this.getSibling()).getType() == GlobalVars.P_CHILD) && (GlobalVars.popListChild.get(this.getSibling()).getHealthStatus().isSymptomatic()==true)) {
@@ -612,7 +598,8 @@ public class DefaultAgent implements IAgent {
 					GlobalVars.popListAdult.get(this.getFather()).setStayHome(false);
 				}
 			} else if (this.getType() == GlobalVars.P_TEEN) {
-				this.stayHome = false;
+				this.setStayHome(false);
+				this.setGoHome(false);
 			} else {
 				//do nothing for adults
 			}
@@ -732,6 +719,21 @@ public class DefaultAgent implements IAgent {
 			System.out.print(out);
 		}
 	}
+	
+	public void setGoHome(Boolean true_or_false) {
+		this.goingHome = true_or_false;
+	}
+	
+	public Boolean getGoHome() {
+		return this.goingHome;
+	}
 
+	public void setIsHome(Boolean true_or_false) {
+		this.isHome = true_or_false;
+	}
+	
+	public Boolean getIsHome() {
+		return this.isHome;
+	}
 
 }
