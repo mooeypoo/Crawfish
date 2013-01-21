@@ -40,14 +40,14 @@ public class AgentFactory {
 	private static Logger LOGGER = Logger.getLogger(AgentFactory.class.getName());
 
 	/** WE SHOULD ADD THESE TO THE PARAMETERS!!! **/
-	public static final int TOTAL_POPULATION_NUMBER = 100; // This will be approximate (close enough)
+	public static final int TOTAL_POPULATION_NUMBER = GlobalVars.NUM_OF_ADULTS; // This will be approximate (close enough)
 
 	private static final double PERC_ADULTS_MARRIED = 0.85; // 85% (out of all adults)
 	private static final double PERC_ADULTS_WCHILD = 0.8; 	// 80% (out of married adults)
 	
-	private int initInfected_Adults 	= 1000;	//GlobalVars.INITIAL_INFECTED_ADULTS;
-	private int initInfected_Teens 		= 500;	//GlobalVars.INITIAL_INFECTED_TEENS;
-	private int initInfected_Children 	= 500; 	//GlobalVars.INITIAL_INFECTED_CHILDREN;
+	private int initInfected_Adults 	= GlobalVars.INITIAL_INFECTED_ADULTS;	//GlobalVars.INITIAL_INFECTED_ADULTS;
+	private int initInfected_Teens 		= GlobalVars.INITIAL_INFECTED_TEENS;	//GlobalVars.INITIAL_INFECTED_TEENS;
+	private int initInfected_Children 	= GlobalVars.INITIAL_INFECTED_CHILDREN; 	//GlobalVars.INITIAL_INFECTED_CHILDREN;
 	/** ---------------------------------------- **/
 	
 	

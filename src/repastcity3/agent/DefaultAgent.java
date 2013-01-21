@@ -143,7 +143,7 @@ public class DefaultAgent implements IAgent {
 						 */
 						Random randomGenerator = new Random(123987);
 						int randDice = randomGenerator.nextInt(100);
-						if (randDice <= (100*GlobalVars.DISEASE_PERC_DEATHS)) {
+						if (randDice <= (GlobalVars.DISEASE_PERC_DEATHS)) {
 							//agent is dead :(
 							System.err.println("Agent "+this.getID()+": DEAD.");
 							//remove from family:
