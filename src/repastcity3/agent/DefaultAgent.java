@@ -53,7 +53,7 @@ public class DefaultAgent implements IAgent {
 	private Boolean stayHome = false; //set true if parent of a sick child
 	
 	private List<Building> nearbyBuildings = new ArrayList<Building>();
-//	private List<Building> buildingsVisitedToday = new ArrayList<Building>();
+	private List<Building> buildingsVisitedToday = new ArrayList<Building>();
 
 	private Building home; // Where the agent lives
 	private Building workplace; // Where the agent works
@@ -143,6 +143,32 @@ public class DefaultAgent implements IAgent {
 					}
 				}
 			}
+			
+			/*****************************************
+			 *****************************************
+			 *****************************************
+			 *****************************************
+			 ** RESET BUILDINGS OF THE DAY HERE 
+			 *****************************************
+			 *****************************************
+			 *****************************************
+			 *****************************************
+			 */
+			if (!this.getHealthStatus().isInfectious()) { //agent healed
+				for (Building b : this.buildingsVisitedToday) {
+					synchronized (ContextManager.randomLock) {
+						Iterator<Building> bList = ContextManager.buildingContext.getRandomObjects(Building.class, 10000).iterator();
+						String msg = "";
+						while (bList.hasNext()) {
+							Building bld = bList.next();
+							if (bld.equals(b)) {
+								bld.removeSickAgent(this.getID());
+							}
+						}
+					}
+					
+				}
+			}
 		}
 		
 		
@@ -219,6 +245,11 @@ public class DefaultAgent implements IAgent {
 					if (amIGoingIn==true) {
 						msg = "IN";
 						bld.agentIn(this.getID(), this.getHealthStatus().isInfectious());
+						/** Add to buildings of the day: **/
+						if (this.buildingsVisitedToday.indexOf(b) == -1) {
+							//add
+							this.buildingsVisitedToday.add(b);
+						}
 						
 					} else {
 						msg = "OUT";
@@ -495,8 +526,10 @@ public class DefaultAgent implements IAgent {
 			if (this.getType() == GlobalVars.P_CHILD) {
 				this.stayHome = false;
 				//let the parent go back to work (unless sibling is sick):
-				if ((GlobalVars.popListChild.get(this.getSibling()).getType() == GlobalVars.P_CHILD) && (GlobalVars.popListChild.get(this.getSibling()).getHealthStatus().isSymptomatic()==true)) {
-					//do nothing, sibling is a child who's sick
+				if (this.getSibling()>-1) {
+					if ((GlobalVars.popListChild.get(this.getSibling()).getType() == GlobalVars.P_CHILD) && (GlobalVars.popListChild.get(this.getSibling()).getHealthStatus().isSymptomatic()==true)) {
+						//do nothing, sibling is a child who's sick
+					}
 				} else {
 					GlobalVars.popListAdult.get(this.getMother()).setStayHome(false);
 					GlobalVars.popListAdult.get(this.getFather()).setStayHome(false);

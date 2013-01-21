@@ -151,9 +151,14 @@ public class Building implements FixedGeography, Identified {
 	public synchronized void agentIn(int agentID, Boolean isInfected) {
 		if (this.sickAgents.indexOf(agentID) == -1 && isInfected==true) {
 			this.sickAgents.add(agentID);
-			System.err.println("Agent "+agentID+" Added to sickAgents.");
+//			System.err.println("Agent "+agentID+" Added to sickAgents.");
 		} else {
-			System.err.println("Agent "+agentID+" NOT ADDED! Params: "+agentID+"("+this.sickAgents.indexOf(agentID)+")"+" / "+isInfected);
+//			System.err.println("Agent "+agentID+" NOT ADDED! Params: "+agentID+"("+this.sickAgents.indexOf(agentID)+")"+" / "+isInfected);
+		}
+	}
+	public synchronized void removeSickAgent(int agentID) {
+		if (this.sickAgents.indexOf(agentID) > -1) {
+			this.sickAgents.remove(this.sickAgents.indexOf(agentID));
 		}
 	}
 	
