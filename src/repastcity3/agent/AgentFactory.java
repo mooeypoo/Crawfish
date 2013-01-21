@@ -44,7 +44,7 @@ public class AgentFactory {
 
 	private static final double PERC_ADULTS_MARRIED = 0.85; // 85% (out of all adults)
 	private static final double PERC_ADULTS_WCHILD = 0.8; 	// 80% (out of married adults)
-
+	
 	private int initInfected_Adults 	= 1000;	//GlobalVars.INITIAL_INFECTED_ADULTS;
 	private int initInfected_Teens 		= 500;	//GlobalVars.INITIAL_INFECTED_TEENS;
 	private int initInfected_Children 	= 500; 	//GlobalVars.INITIAL_INFECTED_CHILDREN;

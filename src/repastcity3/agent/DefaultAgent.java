@@ -131,14 +131,85 @@ public class DefaultAgent implements IAgent {
 						 *****************************************
 						 *****************************************
 						 *****************************************
-						 * SET PERCENTAGE OF DEATH HERE
+						 ***    SET PERCENTAGE OF DEATH HERE   *** 
 						 *****************************************
 						 *****************************************
 						 *****************************************
 						 *****************************************
 						 */
-						System.err.println("Agent "+this.getID()+": Now BACK TO SUSCEPTIBE.");
-						this.setHealthStatus(DiseaseStages.S); //back to susceptible
+						Random randomGenerator = new Random(123987);
+						int randDice = randomGenerator.nextInt(100);
+						if (randDice <= (100*GlobalVars.DISEASE_PERC_DEATHS)) {
+							//agent is dead :(
+							System.err.println("Agent "+this.getID()+": DEAD.");
+							//remove from family:
+							if (this.getType()==GlobalVars.P_ADULT) {
+								//check if there is a partner:
+								if (this.getPartner( ) > -1) {
+									//remove from partner:
+									GlobalVars.popListAdult.get(this.getPartner()).setPartner(-1);
+								}
+								if (this.getChild1() > -1) {
+									//remove from child
+									if (this.getID() == GlobalVars.popListChild.get(this.getChild1()).getFather()) {
+										GlobalVars.popListChild.get(this.getChild1()).setFather(-1);
+									} else if (this.getID() == GlobalVars.popListChild.get(this.getChild1()).getMother()) {
+										GlobalVars.popListChild.get(this.getChild1()).setMother(-1);
+									}
+								}
+								if (this.getChild2() > -1) {
+									//remove from child
+									if (this.getID() == GlobalVars.popListChild.get(this.getChild2()).getFather()) {
+										GlobalVars.popListChild.get(this.getChild2()).setFather(-1);
+									} else if (this.getID() == GlobalVars.popListChild.get(this.getChild2()).getMother()) {
+										GlobalVars.popListChild.get(this.getChild2()).setMother(-1);
+									}
+								}
+								// set status to DEAD:
+								this.setHealthStatus(DiseaseStages.D);
+								/*******************************************/
+								/*******************************************/
+								/*******************************************/
+								/** DO WE ERASE THE PERSON FROM THE LIST? **/
+								/*******************************************/
+								/*******************************************/
+								/*******************************************/
+								
+							} else {
+								//remove from parents:
+								int momIndex = this.getMother();
+								if (this.getID()==GlobalVars.popListAdult.get(momIndex).getChild1()) {
+									GlobalVars.popListAdult.get(momIndex).setChild1(-1);
+								} else if (this.getID()==GlobalVars.popListAdult.get(momIndex).getChild2()) {
+									GlobalVars.popListAdult.get(momIndex).setChild2(-1);
+								}
+								int dadIndex = this.getFather();
+								if (this.getID()==GlobalVars.popListAdult.get(dadIndex).getChild1()) {
+									GlobalVars.popListAdult.get(dadIndex).setChild1(-1);
+								} else if (this.getID()==GlobalVars.popListAdult.get(dadIndex).getChild2()) {
+									GlobalVars.popListAdult.get(dadIndex).setChild2(-1);
+								}
+								//remove from sibling:
+								if (this.getSibling() > -1) {
+									GlobalVars.popListChild.get(this.getSibling()).setSibling(-1);
+								}
+								// set status to DEAD:
+								this.setHealthStatus(DiseaseStages.D);
+								/*******************************************/
+								/*******************************************/
+								/*******************************************/
+								/** DO WE ERASE THE PERSON FROM THE LIST? **/
+								/*******************************************/
+								/*******************************************/
+								/*******************************************/
+							}
+							
+						} else {
+							//agent has recovered!
+							System.err.println("Agent "+this.getID()+": Now BACK TO SUSCEPTIBE.");
+							this.setHealthStatus(DiseaseStages.S); //back to susceptible
+						}
+						
 						this.cHealthInfected=0;
 					}
 				}
@@ -148,7 +219,7 @@ public class DefaultAgent implements IAgent {
 			 *****************************************
 			 *****************************************
 			 *****************************************
-			 ** RESET BUILDINGS OF THE DAY HERE 
+			 **   RESET BUILDINGS OF THE DAY HERE   **
 			 *****************************************
 			 *****************************************
 			 *****************************************
@@ -166,7 +237,6 @@ public class DefaultAgent implements IAgent {
 							}
 						}
 					}
-					
 				}
 			}
 		}
@@ -504,6 +574,13 @@ public class DefaultAgent implements IAgent {
 	public void setHealthStatus(DiseaseStages st) {
 		this.myHealthStatus = st;
 		
+		if (st == DiseaseStages.D) {
+			//agent is dead!
+			System.err.println("AGENT" + this.getID() + ": DEAD.");
+			this.stayHome=true;
+			return;
+		}
+		
 		if (st.isSymptomatic() == true) {
 			if (this.getType() == GlobalVars.P_CHILD) {
 				this.stayHome = true;
@@ -540,6 +617,7 @@ public class DefaultAgent implements IAgent {
 				//do nothing for adults
 			}
 		}
+		return;
 	}
 	
 	@Override

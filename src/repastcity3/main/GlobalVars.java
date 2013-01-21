@@ -41,11 +41,7 @@ public abstract class GlobalVars {
 	/* Population Lists */
 	public static ArrayList<IAgent> popListAdult = new ArrayList<IAgent>();
 	public static ArrayList<IAgent> popListChild = new ArrayList<IAgent>();
-	
-	public static final int hCOUNTER_EXPOSED = 1; //in days
-	public static final int hCOUNTER_INFECTED = 1; //in days
-	public static final int hCOUNTER_IMMUNE = 2; //in days
-
+		
 	public static boolean isDebug = false;
 	
 	public static final int ACT_HOME = 0;
@@ -84,7 +80,15 @@ public abstract class GlobalVars {
 	public static int INITIAL_INFECTED_CHILDREN;
 	public static int INITIAL_INFECTED_TEENS;
 	
+	/** PARAMS **/
 	public static int NUM_OF_ADULTS;
+
+	public static final int hCOUNTER_EXPOSED = 1; //in days
+	public static final int hCOUNTER_INFECTED = 1; //in days
+	public static final int hCOUNTER_IMMUNE = 2; //in days
+	public static final double DISEASE_PERC_DEATHS = 0.99;
+	/** **/
+	
 	
 	public static int currentDay = 0;
 
