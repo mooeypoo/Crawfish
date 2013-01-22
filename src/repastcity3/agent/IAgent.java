@@ -53,16 +53,18 @@ public interface IAgent {
 	 * Set health status
 	 */
 	public static enum DiseaseStages { 
-		S(0,false,false), E(10, false,true), I(20, true,true), R(30, false,false), D(999, false, false); 
+		S(0,false,false,"susceptible"), E(2, false,true, "exposed"), I(7, true,true,"infected"), R(30, false,false, "recovered"), D(999, false, false, "dead"); 
 		
 		private int code;
 		private Boolean symptomatic;
 		private Boolean infectious;
+		private String literal;
 		
-		private DiseaseStages(int c, Boolean s, Boolean i) {
+		private DiseaseStages(int c, Boolean s, Boolean i, String l) {
 			code = c;
 			symptomatic = s;
 			infectious = i;
+			literal = l;
 		}
 		
 		public int getCode() {
@@ -73,6 +75,10 @@ public interface IAgent {
 		}
 		public Boolean isSymptomatic() {
 			return symptomatic;
+		}
+		
+		public String toString() {
+			return literal;
 		}
 		
 	}
@@ -115,7 +121,7 @@ public interface IAgent {
 	void setPartner(int person);
 	void setChild1(int person);
 	void setChild2(int person);
-	
+	void setDiseaseStatNumber(int dStatNum);
 	/**
 	 * Get parents
 	 */
@@ -125,6 +131,7 @@ public interface IAgent {
 	int getPartner();
 	int getChild1();
 	int getChild2();
+	int getDiseaseStatNumber();
 	
 	boolean isHasChildren();
 	void setHasChildren(boolean hasChildren);
