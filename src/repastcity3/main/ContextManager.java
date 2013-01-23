@@ -312,6 +312,7 @@ public class ContextManager implements ContextBuilder<Object> {
 		
 		// Schedule a function that will stop the simulation after a number of ticks
 		int endTime = Integer.parseInt(ContextManager.getParameter("END_TIME").toString());
+		endTime = endTime*1000;
 		schedule.schedule(ScheduleParameters.createOneTime(endTime), this, "end");
 
 		/*
