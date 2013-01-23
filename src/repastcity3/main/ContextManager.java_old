@@ -17,10 +17,7 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -107,10 +104,6 @@ public class ContextManager implements ContextBuilder<Object> {
 	private static Context<IAgent> agentContext;
 	private static Geography<IAgent> agentGeography;
 
-	static CSVFileMaker cs_adults;
-	static CSVFileMaker cs_children;
-	static CSVFileMaker cs_teens;
-	
 	@Override
 	public Context<Object> build(Context<Object> con) {
 
@@ -262,43 +255,7 @@ public class ContextManager implements ContextBuilder<Object> {
 	
 	// THE outputBurglaryData() FUNCTION COULD GO HERE.
 	
-	public static void createTheOutputFiles() throws IOException{
-		String s = getTheDate();
-		StringBuilder sb_a = new StringBuilder("AdultModelOutput.");
-		StringBuilder sb_t = new StringBuilder("TeensModelOutput.");
-		StringBuilder sb_c = new StringBuilder("ChildrenModelOutput.");
-
-		sb_a.append(s).append(".csv");
-		sb_t.append(s).append(".csv");
-		sb_c.append(s).append(".csv");
-		cs_adults = new CSVFileMaker(sb_a.toString());
-		cs_teens = new CSVFileMaker(sb_t.toString());
-		cs_children = new CSVFileMaker(sb_c.toString());
-		
-		try {
-			cs_adults.create_it();
-			cs_teens.create_it();
-			cs_children.create_it();
-			
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			System.out.println("There have been I/O Exception during the creation of those files: "+cs_adults.getFile()+cs_teens.getFile()+cs_children.getFile());
-		}
-	}
 	
-	private static String getTheDate(){
-		DateFormat dateFor = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-		Date date = new Date();
-		StringBuilder sb = new StringBuilder(dateFor.format(date)); 
-		sb.setCharAt(4, '.');
-		sb.setCharAt(7, '.');
-		sb.setCharAt(10, '.');
-		sb.setCharAt(13, '_');
-		sb.setCharAt(16, '_');
-		
-		
-		return sb.toString();
-	}
 	
 
 	private void createSchedule() throws NumberFormatException, ParameterNotFoundException {
@@ -313,13 +270,9 @@ public class ContextManager implements ContextBuilder<Object> {
 		schedule.schedule(ScheduleParameters.createRepeating(1, 1000, ScheduleParameters.LAST_PRIORITY), this,
 				"printTicks");
 
-		// Schedule to update the output files every 1000 iterations.
-				schedule.schedule(ScheduleParameters.createRepeating(1, 1000, ScheduleParameters.LAST_PRIORITY), this,
-						"writeOutput");
-		
 		// Schedule a function that will stop the simulation after a number of ticks
 		int endTime = Integer.parseInt(ContextManager.getParameter("END_TIME").toString());
-		endTime = endTime * 1000;
+		endTime = endTime*1000; //(convert days to ticks)
 		schedule.schedule(ScheduleParameters.createOneTime(endTime), this, "end");
 
 		/*
@@ -364,18 +317,6 @@ public class ContextManager implements ContextBuilder<Object> {
 
 	private static long speedTimer = -1; // For recording time per N iterations
 
-	public void writeOutput(){
-		try {
-			cs_adults.append_it();
-			cs_teens.append_it();
-			cs_children.append_it();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-	}
-	
 	public void printTicks() {
 		LOGGER.info("Iterations: " + RunEnvironment.getInstance().getCurrentSchedule().getTickCount() + ". Speed: "
 				+ ((double) (System.currentTimeMillis() - ContextManager.speedTimer) / 1000.0) + "sec/ticks.");

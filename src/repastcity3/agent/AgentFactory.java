@@ -14,7 +14,11 @@
 
 package repastcity3.agent;
 
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
@@ -33,9 +37,13 @@ import repastcity3.exceptions.AgentCreationException;
 import repastcity3.main.ContextManager;
 import repastcity3.main.GlobalVars;
 import repastcity3.main.MODEL_PARAMETERS;
+import repastcity3.main.CSVFileMaker;
 
 
 public class AgentFactory {
+	CSVFileMaker cs_adults;
+	CSVFileMaker cs_children;
+	CSVFileMaker cs_teens;
 
 	private static Logger LOGGER = Logger.getLogger(AgentFactory.class.getName());
 
@@ -229,7 +237,14 @@ public class AgentFactory {
 		LOGGER.info("There are "+infectedCounter+" initial infected: "+infAcounter+" Adults, "+infCcounter+ " Children, "+infTcounter +" Teens.");
 		LOGGER.info("Checking purpose "+infectedCounter+" initial infected: "+GlobalVars.INITIAL_INFECTED_ADULTS+" Adults, "+GlobalVars.INITIAL_INFECTED_CHILDREN+ " Children, "+GlobalVars.INITIAL_INFECTED_TEENS +" Teens.");
 		LOGGER.info("Infection Factor"+GlobalVars.InfectionFactor+" Death Rate "+GlobalVars.DISEASE_PERC_DEATHS+" immune days: "+GlobalVars.hCOUNTER_IMMUNE+" Exposed-> Inf "+GlobalVars.hCOUNTER_EXPOSED+ " Inf->R/D  "+GlobalVars.hCOUNTER_INFECTED );
-	
+		
+		try {
+			ContextManager.createTheOutputFiles();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 	}
 
 
