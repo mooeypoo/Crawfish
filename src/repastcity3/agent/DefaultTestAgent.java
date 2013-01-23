@@ -45,7 +45,6 @@ public class DefaultTestAgent implements IAgent {
 	private int sibling = -1;
 	private int partner = -1;	
 
-	private int diseaseStatNumber = -1;
 	
 	private boolean hasChildren = false;
 	
@@ -394,14 +393,5 @@ public class DefaultTestAgent implements IAgent {
 		return this.myAgenda;
 	}
 */
-	@Override
-	public void setDiseaseStatNumber(int dStatNum) {
-		this.diseaseStatNumber = dStatNum;
-	}
-	
-	@Override
-	public int getDiseaseStatNumber() {
-		return this.diseaseStatNumber;
-	}
 
 }

@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Enumeration;
@@ -50,6 +51,7 @@ import repast.simphony.space.graph.Network;
 import repast.simphony.space.graph.RepastEdge;
 import repastcity3.agent.AgentFactory;
 import repastcity3.agent.IAgent;
+import repastcity3.agent.Operations;
 import repastcity3.agent.ThreadedAgentScheduler;
 import repastcity3.environment.Building;
 import repastcity3.environment.GISFunctions;
@@ -107,9 +109,14 @@ public class ContextManager implements ContextBuilder<Object> {
 	private static Context<IAgent> agentContext;
 	private static Geography<IAgent> agentGeography;
 
+	Operations op = new Operations();
+
 	static CSVFileMaker cs_adults;
 	static CSVFileMaker cs_children;
 	static CSVFileMaker cs_teens;
+	
+	
+	private static int sPop, ePop, iPop, rPop;
 	
 	@Override
 	public Context<Object> build(Context<Object> con) {
@@ -259,11 +266,10 @@ public class ContextManager implements ContextBuilder<Object> {
 	} // end of build() function
 
 	
-	
-	// THE outputBurglaryData() FUNCTION COULD GO HERE.
+
 	
 	public static void createTheOutputFiles() throws IOException{
-		String s = getTheDate();
+		String s = Operations.getTheDate();
 		StringBuilder sb_a = new StringBuilder("AdultModelOutput.");
 		StringBuilder sb_t = new StringBuilder("TeensModelOutput.");
 		StringBuilder sb_c = new StringBuilder("ChildrenModelOutput.");
@@ -286,20 +292,7 @@ public class ContextManager implements ContextBuilder<Object> {
 		}
 	}
 	
-	private static String getTheDate(){
-		DateFormat dateFor = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-		Date date = new Date();
-		StringBuilder sb = new StringBuilder(dateFor.format(date)); 
-		sb.setCharAt(4, '.');
-		sb.setCharAt(7, '.');
-		sb.setCharAt(10, '.');
-		sb.setCharAt(13, '_');
-		sb.setCharAt(16, '_');
-		
-		
-		return sb.toString();
-	}
-	
+
 
 	private void createSchedule() throws NumberFormatException, ParameterNotFoundException {
 		ISchedule schedule = RunEnvironment.getInstance().getCurrentSchedule();
@@ -314,12 +307,11 @@ public class ContextManager implements ContextBuilder<Object> {
 				"printTicks");
 
 		// Schedule to update the output files every 1000 iterations.
-				schedule.schedule(ScheduleParameters.createRepeating(1, 1000, ScheduleParameters.LAST_PRIORITY), this,
-						"writeOutput");
+				//schedule.schedule(ScheduleParameters.createRepeating(1, 1000, ScheduleParameters.LAST_PRIORITY), this,
+					//	"writeOutput");
 		
 		// Schedule a function that will stop the simulation after a number of ticks
 		int endTime = Integer.parseInt(ContextManager.getParameter("END_TIME").toString());
-		endTime = endTime * 1000;
 		schedule.schedule(ScheduleParameters.createOneTime(endTime), this, "end");
 
 		/*
@@ -364,11 +356,17 @@ public class ContextManager implements ContextBuilder<Object> {
 
 	private static long speedTimer = -1; // For recording time per N iterations
 
-	public void writeOutput(){
+	public void writeOutput(){ //sanem
+		List<Integer> dis_params = new ArrayList<Integer>();
+		dis_params = op.getTheDiseasesAndAgents();
+		List<Integer> all_pop = new ArrayList<Integer>();
+		all_pop = op.getAgentCount();
 		try {
-			cs_adults.append_it();
-			cs_teens.append_it();
-			cs_children.append_it();
+			
+			cs_adults.append_it(numberOfDays, dis_params, all_pop);
+			cs_teens.append_it(numberOfDays, dis_params, all_pop);
+			cs_children.append_it(numberOfDays, dis_params, all_pop);
+			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -384,6 +382,16 @@ public class ContextManager implements ContextBuilder<Object> {
 
 	/* Function that is scheduled to stop the simulation */
 	public void end() {
+		try {
+			cs_adults.close_it();
+			cs_teens.close_it();
+			cs_children.close_it();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			System.out.println("There have been an error during while closing the files "+cs_adults.getFile()+" "+cs_teens.getFile()+" "+cs_children.getFile());
+		}
+		
+		
 		LOGGER.info("Simulation is ending after: " + RunEnvironment.getInstance().getCurrentSchedule().getTickCount()
 				+ " iterations.");
 		ISchedule schedule = RunEnvironment.getInstance().getCurrentSchedule();
@@ -709,6 +717,8 @@ public class ContextManager implements ContextBuilder<Object> {
 //        realTime += 3*(1.0/60.0); //(1.0/60.0); // Increase the time by one minute (a 60th of an hour)
         realTime += (1.0/60.0); //(1.0/60.0); // Increase the time by one minute (a 60th of an hour)
 	        if (realTime >= 24.0) { // If it's the end of a day then reset the time
+	        	writeOutput();
+	        	LOGGER.log(Level.INFO, "Output was written");
 	                realTime = 0.0;
 	                numberOfDays++; // Also increment our day counter
 	                LOGGER.log(Level.INFO, "Simulating day "+numberOfDays);

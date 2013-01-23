@@ -42,8 +42,6 @@ public class DefaultAgent implements IAgent {
 	private int sibling = -1;
 	private int partner = -1;
 	
-	private int diseaseStatNumber = -1;
-	
 	private double timeSpentInLocation = 0;
 
 	private Boolean isImmune = false;
@@ -89,7 +87,6 @@ public class DefaultAgent implements IAgent {
 //		this.workplace = createWorkplace();
 		this.previousBuilding = this.home;
 		this.currentBuilding = this.home;
-		this.setHealthStatus(DiseaseStages.S);
 	}
 
 	@Override
@@ -136,7 +133,7 @@ public class DefaultAgent implements IAgent {
 			} else {
 				if (this.getHealthStatus() == DiseaseStages.E) {
 					this.cHealthExposed++;
-					if (this.cHealthExposed > GlobalVars.hCOUNTER_EXPOSED) {
+					if (this.cHealthExposed >= GlobalVars.hCOUNTER_EXPOSED) {
 						//move on to next stage:
 						this.setHealthStatus(DiseaseStages.I);
 						this.cHealthExposed=0;
@@ -144,7 +141,7 @@ public class DefaultAgent implements IAgent {
 					}
 				} else if (this.getHealthStatus() == DiseaseStages.I) {
 					this.cHealthInfected++;
-					if (this.cHealthInfected > GlobalVars.hCOUNTER_INFECTED) {
+					if (this.cHealthInfected >= GlobalVars.hCOUNTER_INFECTED) {
 						//move on to next stage:
 						Random randomGenerator = new Random(123987);
 						int randDice = randomGenerator.nextInt(100);
@@ -303,14 +300,29 @@ public class DefaultAgent implements IAgent {
 						double oddsOfInfectiousness = this.calcInfectiousness(this.previousBuilding);
 						if (checkIfAgentIsSick(oddsOfInfectiousness)) {
 							//sick
-							this.setHealthStatus(DiseaseStages.E);
-//							System.out.println("Agent#"+this.getID()+": EXPOSED");
+							System.out.println("Agent#"+this.getID()+": EXPOSED");
 						} else {
 							//not sick
-//							System.out.println("Agent#"+this.getID()+": NOT EXPOSED");
+							System.out.println("Agent#"+this.getID()+": NOT EXPOSED");
 						}
 						
+/***************************************************
+ * 
+ * 
 
+						
+						double oddsOfInfectiousness = this.calcInfectiousness(this.previousBuilding);
+						System.out.println("["+theTime+"] *** Building #"+this.previousBuilding.hashCode()+ "["+this.previousBuilding.getType()+"] infectiousness: "+oddsOfInfectiousness);
+						// Toss the dice:
+						Random randomGenerator = new Random(123987);
+						int randDice = randomGenerator.nextInt(100);
+						if (randDice <= oddsOfInfectiousness) {
+							this.setHealthStatus(DiseaseStages.E);
+							System.err.println("Agent #"+this.getID() + " is Infected");
+						} else {
+							System.err.println("Agent #"+this.getID() + " is SAFE! (Not Infected)");
+						}
+*/						
 						this.alreadyUpdatedBuilding = true;
 					}
 				}
@@ -386,14 +398,10 @@ public class DefaultAgent implements IAgent {
 			//count how many S/I people are in the building:
 			if (b != null) {
 				int totalPop =0;
-				if (b.getType()==1) { //if agent is in a house
-					totalPop = 4;
+				if (this.getType()==GlobalVars.P_ADULT) {
+					totalPop = GlobalVars.popListAdult.size();
 				} else {
-					if (this.getType()==GlobalVars.P_ADULT) {
-						totalPop = (GlobalVars.popListAdult.size() / 4);
-					} else {
-						totalPop = (GlobalVars.popListChild.size() / 4);
-					}
+					totalPop = GlobalVars.popListChild.size();
 				}
 				int sickPop = b.getInfected();
 				result = infEquation(sickPop, totalPop, this.timeSpentInLocation);
@@ -408,8 +416,8 @@ public class DefaultAgent implements IAgent {
 		double ans = 0;
 		double dInfected = (double) infected;
 		double dTotal = (double) total;
-		ans = (5.0)*GlobalVars.InfectionFactor * (1.0)*(time / 1000) * (4.0)*(dInfected / (dTotal)) * 100;
-		System.err.println("ANS: "+ans+"-> (5.0)*"+GlobalVars.InfectionFactor+" * (1.0)*("+time+" / 1000) * (4.0)*("+dInfected+" / "+(dTotal)+") * 100");
+		ans = (5.0)*GlobalVars.InfectionFactor * (1.0)*(time / 1000) * (4.0)*(dInfected / (dTotal/4)) * 100;
+		System.err.println("ANS: "+ans+"-> (5.0)*"+GlobalVars.InfectionFactor+" * (1.0)*("+time+" / 1000) * (4.0)*("+dInfected+" / "+(dTotal/4)+") * 100");
 		return ans;
 	}
 	
@@ -581,21 +589,20 @@ public class DefaultAgent implements IAgent {
 	@Override
 	public void setHealthStatus(DiseaseStages st) {
 		this.myHealthStatus = st;
-		String status = st.toString();
-		this.setDiseaseStatNumber(st.getCode());
-		System.err.println("AGENT" + this.getID() + " --> " + status);
+		
 		if (st == DiseaseStages.D) {
 			//agent is dead!
+			System.err.println("AGENT" + this.getID() + ": DEAD.");
 			this.setStayHome(true);
 			//don't go anywhere
 			return;
 		}
 		
-		
 		if (st.isSymptomatic() == true) {
 			if (this.getType() == GlobalVars.P_CHILD) {
 				this.setStayHome(true);
 				this.setGoHome(true);
+
 				//randomly pick a parent to stay with the child:
 				Random randomGenerator = new Random(123987);
 				int rand = randomGenerator.nextInt(2);
@@ -762,16 +769,6 @@ public class DefaultAgent implements IAgent {
 	
 	public Boolean getIsHome() {
 		return this.isHome;
-	}
-
-	@Override
-	public void setDiseaseStatNumber(int dStatNum) {
-		this.diseaseStatNumber = dStatNum;
-	}
-	
-	@Override
-	public int getDiseaseStatNumber() {
-		return this.diseaseStatNumber;
 	}
 
 }

@@ -6,69 +6,70 @@
 						converter="repast.simphony.parameter.StringConverterFactory$IntConverter"
 									
 		/>
-				<parameter name="IMMUNE_DAYS" displayName="10 - Days for Immunity" type="int" 
-						defaultValue="30" 
+				<parameter name="INITIAL_INFECTED_CHILDREN" displayName="5 - Initial Infected Children" type="int" 
+						defaultValue="300" 
 						isReadOnly="false" 
 						converter="repast.simphony.parameter.StringConverterFactory$IntConverter"
 									
 		/>
-				<parameter name="NUM_OF_ADULTS" displayName="02 - Number of People" type="int" 
+				<parameter name="INITIAL_INFECTED_ADULTS" displayName="3 - Initial Infected (Adults)" type="int" 
+						defaultValue="500" 
+						isReadOnly="false" 
+						converter="repast.simphony.parameter.StringConverterFactory$IntConverter"
+									
+		/>
+				<parameter name="NUM_OF_ADULTS" displayName="2 - Number of People" type="int" 
 						defaultValue="1000" 
 						isReadOnly="false" 
 						converter="repast.simphony.parameter.StringConverterFactory$IntConverter"
 									
 		/>
-				<parameter name="AGENT_DEFINITION" displayName="01 - Execution Method" type="java.lang.String" 
+				<parameter name="AGENT_DEFINITION" displayName="1 - Execution Method" type="java.lang.String" 
 						defaultValue="crawfish_epidemic" 
 						isReadOnly="false" 
 						converter="repast.simphony.parameter.StringConverterFactory$StringStringConverter"
 									
 		/>
-				<parameter name="DIS_INFECTION_RATE" displayName="06 - Disease Infection Rate" type="double" 
+				<parameter name="DIS_INFECTION_RATE" displayName="6 - Disease Infection Rate" type="double" 
 						defaultValue="0.5" 
 						isReadOnly="false" 
 						converter="repast.simphony.parameter.StringConverterFactory$DoubleConverter"
 									values="0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 "
 						
 		/>
-				<parameter name="INITIAL_INFECTED_TEENS" displayName="04 - Initial Infected (Teens)" type="int" 
+
+				<parameter name="INITIAL_INFECTED_TEENS" displayName="4 - Initial Infected (Teens)" type="int" 
 						defaultValue="300" 
 						isReadOnly="false" 
 						converter="repast.simphony.parameter.StringConverterFactory$IntConverter"
 									
 		/>
-				<parameter name="INITIAL_INFECTED_CHILDREN" displayName="05 - Initial Infected Children" type="int" 
-						defaultValue="300" 
+				<parameter name="EXPOSED_TO_INF" displayName="8 - Days From Exposed To Infected" type="int" 
+						defaultValue="5" 
 						isReadOnly="false" 
 						converter="repast.simphony.parameter.StringConverterFactory$IntConverter"
 									
 		/>
-				<parameter name="INITIAL_INFECTED_ADULTS" displayName="03 - Initial Infected (Adults)" type="int" 
-						defaultValue="500" 
-						isReadOnly="false" 
-						converter="repast.simphony.parameter.StringConverterFactory$IntConverter"
-									
-		/>
-				<parameter name="END_TIME" displayName="Simulation Duration (in Days)" type="int" 
-						defaultValue="100" 
-						isReadOnly="false" 
-						converter="repast.simphony.parameter.StringConverterFactory$IntConverter"
-									
-		/>
-				<parameter name="MORTALITY_RATE" displayName="07 - Mortality Rate (in percent)" type="int" 
-						defaultValue="30" 
-						isReadOnly="false" 
-						converter="repast.simphony.parameter.StringConverterFactory$IntConverter"
-									
-		/>
-				<parameter name="INFECTED_TO_RECOVERY" displayName="09 - Days from Infected to Recovered/ Dead" type="int" 
+				<parameter name="INFECTED_TO_RECOVERY" displayName="Days from Infected to Recovered/ Dead" type="int" 
 						defaultValue="20" 
 						isReadOnly="false" 
 						converter="repast.simphony.parameter.StringConverterFactory$IntConverter"
 									
 		/>
-				<parameter name="EXPOSED_TO_INF" displayName="08 - Days From Exposed To Infected" type="int" 
-						defaultValue="5" 
+				<parameter name="END_TIME" displayName="End Time" type="int" 
+						defaultValue="10000" 
+						isReadOnly="false" 
+						converter="repast.simphony.parameter.StringConverterFactory$IntConverter"
+									
+		/>
+				<parameter name="MORTALITY_RATE" displayName="7 - Mortality Rate (in percent)" type="int" 
+						defaultValue="30" 
+						isReadOnly="false" 
+						converter="repast.simphony.parameter.StringConverterFactory$IntConverter"
+									
+		/>
+				<parameter name="IMMUNE_DAYS" displayName="9 - Days for Immunity" type="int" 
+						defaultValue="30" 
 						isReadOnly="false" 
 						converter="repast.simphony.parameter.StringConverterFactory$IntConverter"
 									

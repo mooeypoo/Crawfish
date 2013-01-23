@@ -3,7 +3,6 @@ package repastcity3.main;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.List;
 
 public class CSVFileMaker {
 
@@ -80,49 +79,50 @@ public class CSVFileMaker {
 		return this.file;
 	}
 	
-	public void append_it(int day, List<Integer> dis_all, List<Integer> pop_all) throws IOException{
+	public void append_it() throws IOException{
 		
 		switch(this.file.charAt(0)){
 		case 'A':
-			pr.print(day);
-			pr.print(",");
-			pr.print(pop_all.get(0));
-			pr.print(",");
-			pr.print(dis_all.get(0));
-			pr.print(",");
-			pr.print(dis_all.get(1));
-			pr.print(",");
-			pr.print(dis_all.get(2));
-			pr.print(",");
-			pr.print(dis_all.get(3));
-			pr.println();
+			pr.append('c');
+			this.pr.print("1");
+			this.pr.print(",");
+			this.pr.print("100");
+			this.pr.print(",");
+			this.pr.print("40");
+			this.pr.print(",");
+			this.pr.print("34");
+			this.pr.print(",");
+			this.pr.print("45");
+			this.pr.print(",");
+			this.pr.print("78");
+			this.pr.println();
 			break;
 		case 'T':
-			pr.print(day);
+			pr.print("2");
 			pr.print(",");
-			pr.print(pop_all.get(2));
+			pr.print("445r");
 			pr.print(",");
-			pr.print(dis_all.get(4));
+			pr.print("456");
 			pr.print(",");
-			pr.print(dis_all.get(5));
+			pr.print("677");
 			pr.print(",");
-			pr.print(dis_all.get(6));
+			pr.print("87");
 			pr.print(",");
-			pr.print(dis_all.get(7));
+			pr.print("98");
 			pr.println();
 			break;
 		case 'C':
-			pr.print(day);
+			pr.print("3");
 			pr.print(",");
-			pr.print(pop_all.get(1));
+			pr.print("76");
 			pr.print(",");
-			pr.print(dis_all.get(8));
+			pr.print("90");
 			pr.print(",");
-			pr.print(dis_all.get(9));
+			pr.print("32");
 			pr.print(",");
-			pr.print(dis_all.get(10));
+			pr.print("65");
 			pr.print(",");
-			pr.print(dis_all.get(11));
+			pr.print("78");
 			pr.println();
 			break;
 	}
@@ -130,12 +130,8 @@ public class CSVFileMaker {
 	
 	this.pr.flush();
 	
+	this.pr.close();
+	this.wr.close();
 	}	
 
-	
-	public void close_it() throws IOException
-	{
-		pr.close();
-		wr.close();
-	}
 }
