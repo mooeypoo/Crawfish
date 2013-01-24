@@ -25,8 +25,7 @@ public class CSVFileMaker {
 	
 	public void create_it() throws IOException{
 		
-		switch(this.file.charAt(0)){
-			case 'A':
+		if(this.file.contains("Adult")){
 				pr.print("Day");
 				pr.print(",");
 				pr.print("Adult Number");
@@ -41,8 +40,7 @@ public class CSVFileMaker {
 				pr.print(",");
 				pr.print("D_Adults");
 				pr.println();
-				break;
-			case 'T':
+		}else if(this.file.contains("Teen")){
 				pr.print("Day");
 				pr.print(",");
 				pr.print("Teen Number");
@@ -57,8 +55,7 @@ public class CSVFileMaker {
 				pr.print(",");
 				pr.print("D_Teens");
 				pr.println();
-				break;
-			case 'C':
+		}else if(this.file.contains("Child")){
 				pr.print("Day");
 				pr.print(",");
 				pr.print("Children Number");
@@ -73,7 +70,6 @@ public class CSVFileMaker {
 				pr.print(",");
 				pr.print("D_Children");
 				pr.println();
-				break;
 		}
 				
 		pr.flush();
@@ -90,8 +86,7 @@ public class CSVFileMaker {
 	
 	public void append_it(int day, List<Integer> dis_all, List<Integer> pop_all) throws IOException{
 		
-		switch(this.file.charAt(0)){
-		case 'A':
+		if(this.file.contains("Adult")){
 			pr.print(day);
 			pr.print(",");
 			pr.print(pop_all.get(0));
@@ -106,8 +101,7 @@ public class CSVFileMaker {
 			pr.print(",");
 			pr.print(dis_all.get(4));
 			pr.println();
-			break;
-		case 'T':
+		}else if(this.file.contains("Teen")){
 			pr.print(day);
 			pr.print(",");
 			pr.print(pop_all.get(2));
@@ -122,8 +116,7 @@ public class CSVFileMaker {
 			pr.print(",");
 			pr.print(dis_all.get(9));
 			pr.println();
-			break;
-		case 'C':
+		}else if(this.file.contains("Child")){
 			pr.print(day);
 			pr.print(",");
 			pr.print(pop_all.get(1));
@@ -138,8 +131,7 @@ public class CSVFileMaker {
 			pr.print(",");
 			pr.print(dis_all.get(14));
 			pr.println();
-			break;
-	}
+		}
 	
 	
 	this.pr.flush();

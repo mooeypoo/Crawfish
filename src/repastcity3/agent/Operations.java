@@ -14,7 +14,7 @@ import repastcity3.main.GlobalVars;
 
 public class Operations {
 	
-	private static int sad, ead, iad, rad, dad, sch, ech, ich, rch, dch, st, et, it, rt, dt;
+	private int sad, ead, iad, rad, dad, sch, ech, ich, rch, dch, st, et, it, rt, dt;
 	private static int childC, teenC;
 
 	public static String getTheDate(){
@@ -39,15 +39,15 @@ public class Operations {
 		while(agent_list.hasNext()){
 		IAgent agent = agent_list.next();
 		if(agent.getHealthStatus().equals(DiseaseStages.S)){
-			sad++;
+			this.sad++;
 		}else if(agent.getHealthStatus().equals(DiseaseStages.E)){
-			ead++;
+			this.ead++;
 		}else if(agent.getHealthStatus().equals(DiseaseStages.I)){
-			iad++;
+			this.iad++;
 		}else if(agent.getHealthStatus().equals(DiseaseStages.R)){
-			rad++;
+			this.rad++;
 		}else if(agent.getHealthStatus().equals(DiseaseStages.D)){
-			dad++;
+			this.dad++;
 		}
 		}// end of agent_list.hasNext()
 		int i =0,j=0;
@@ -57,38 +57,43 @@ public class Operations {
 		if(agent.getType() == GlobalVars.P_TEEN){
 			i++;
 			if(agent.getHealthStatus().equals(DiseaseStages.S)){
-				st++;
+				this.st++;
 			}else if(agent.getHealthStatus().equals(DiseaseStages.E)){
-				et++;
+				this.et++;
 			}else if(agent.getHealthStatus().equals(DiseaseStages.I)){
-				it++;
+				this.it++;
 			}else if(agent.getHealthStatus().equals(DiseaseStages.R)){
-				rt++;
+				this.rt++;
 			}else if(agent.getHealthStatus().equals(DiseaseStages.D)){
-				dt++;
+				this.dt++;
 			}
 		}else if(agent.getType() == GlobalVars.P_CHILD) { // if it's child
 			j++;
 			if(agent.getHealthStatus().equals(DiseaseStages.S)){
-				sch++;
+				this.sch++;
 			}else if(agent.getHealthStatus().equals(DiseaseStages.E)){
-				ech++;
+				this.ech++;
 			}else if(agent.getHealthStatus().equals(DiseaseStages.I)){
-				ich++;
+				this.ich++;
 			}else if(agent.getHealthStatus().equals(DiseaseStages.R)){
-				rch++;
+				this.rch++;
 			}else if(agent.getHealthStatus().equals(DiseaseStages.D)){
-				dch++;
+				this.dch++;
 			}
 		}
 		}// end of child_list.hasNext()
-		disease_agents = initialize_list(sad, ead, iad, rad, dad, st, et, it, rt, dt, sch, ech, ich, rch, dch);
-
+		disease_agents = initialize_list(this.sad, this.ead, this.iad, this.rad, this.dad, this.st, this.et, this.it, this.rt, this.dt, this.sch, this.ech, this.ich, this.rch, this.dch);
+		reset_them();
 		return disease_agents;
 		
 	}
 	
 	
+	private void reset_them(){
+		this.sad = 0; this.ead = 0; this.iad = 0; this.rad = 0; this.dad = 0; this.sch = 0; 
+		this.ech = 0; this.ich = 0; this.rch = 0; this.dch= 0; this.st = 0; this.et = 0; 
+		this.it = 0; this.rt = 0; this.dt = 0;
+	}
 	
 	private List<Integer> initialize_list(int s_ad, int e_ad, int i_ad,
 			int r_ad, int d_ad, int s_t, int e_t, int i_t, int r_t, int d_t, int s_ch, int e_ch,

@@ -94,7 +94,7 @@ public class DefaultAgent implements IAgent {
 
 	@Override
 	public void step() throws Exception {
-		if (!this.getHealthStatus() == DiseaseStages.D) {
+		if (this.getHealthStatus() != DiseaseStages.D) {
 			/** CHECK TIME OF DAY **/
 			double theTime = BigDecimal.valueOf(ContextManager.realTime).
 			        round(new MathContext(5,RoundingMode.HALF_UP)).doubleValue();
@@ -113,19 +113,20 @@ public class DefaultAgent implements IAgent {
 			}
 			
 			if (theTime == 0) {
-				System.out.println("Agent "+this.getID()+" DAILY HealthStatus Change.");
-				//Check health status at home:
-				/****************************************************/
-				double oddsOfInfectiousness = this.calcInfectiousness(this.home);
-				if (checkIfAgentIsSick(oddsOfInfectiousness) == true) {
-					//sick
-					System.out.println("Agent#"+this.getID()+": (At Home) EXPOSED");
-				} else {
-					//not sick
-					System.out.println("Agent#"+this.getID()+": (At Home) NOT EXPOSED");
+				if (this.isImmune==false && this.getHealthStatus() == DiseaseStages.S) {
+					System.out.println("Agent "+this.getID()+" DAILY HealthStatus Change.");
+					//Check health status at home:
+					/****************************************************/
+					double oddsOfInfectiousness = this.calcInfectiousness(this.home);
+					if (checkIfAgentIsSick(oddsOfInfectiousness) == true) {
+						//sick
+						System.out.println("Agent#"+this.getID()+": (At Home) EXPOSED");
+					} else {
+						//not sick
+						System.out.println("Agent#"+this.getID()+": (At Home) NOT EXPOSED");
+					}
+					/****************************************************/
 				}
-				/****************************************************/
-				
 				/// Infection status counters:
 				if (this.isImmune == true) {
 					System.out.println("Agent"+this.getID()+" is Immune.");
@@ -139,7 +140,7 @@ public class DefaultAgent implements IAgent {
 					System.out.println("Agent"+this.getID()+" is "+this.getHealthStatus().toString() + " --> CHECKING CHANGE.");
 					if (this.getHealthStatus() == DiseaseStages.E) {
 						this.cHealthExposed++;
-						System.out.println("Agent"+this.getID()+" Exposed Counter: "+this.cHealthExposed);
+						System.out.println("Agent"+this.getID()+" ("+this.getType()+") Exposed Counter: "+this.cHealthExposed);
 						if (this.cHealthExposed > GlobalVars.hCOUNTER_EXPOSED) {
 							//move on to next stage:
 							this.setHealthStatus(DiseaseStages.I);
@@ -148,13 +149,15 @@ public class DefaultAgent implements IAgent {
 						}
 					} else if (this.getHealthStatus() == DiseaseStages.I) {
 						this.cHealthInfected++;
-						System.out.println("Agent"+this.getID()+" Infected Counter: "+this.cHealthInfected);
+						System.out.println("Agent "+this.getID()+" ("+this.getType()+") Infected Counter: "+this.cHealthInfected);
 						if (this.cHealthInfected > GlobalVars.hCOUNTER_INFECTED) {
 							//move on to next stage:
 							Random randomGenerator = new Random(123987);
 							int randDice = randomGenerator.nextInt(100);
+							System.err.println("*** Agent "+this.getID()+": RANDOM TEST (I->R/D): "+randDice+"/"+GlobalVars.DISEASE_PERC_DEATHS);
 							if (randDice <= (GlobalVars.DISEASE_PERC_DEATHS)) {
 								//agent is dead :(
+								this.setHealthStatus(DiseaseStages.D);
 								System.err.println("Agent "+this.getID()+": DEAD.");
 								//remove from family:
 								if (this.getType()==GlobalVars.P_ADULT) {
@@ -180,7 +183,7 @@ public class DefaultAgent implements IAgent {
 										}
 									}
 									// set status to DEAD:
-									this.setHealthStatus(DiseaseStages.D);
+//									this.setHealthStatus(DiseaseStages.D);
 									/*******************************************/
 									/*******************************************/
 									/*******************************************/
@@ -208,7 +211,7 @@ public class DefaultAgent implements IAgent {
 										GlobalVars.popListChild.get(this.getSibling()).setSibling(-1);
 									}
 									// set status to DEAD:
-									this.setHealthStatus(DiseaseStages.D);
+									//this.setHealthStatus(DiseaseStages.D);
 									/*******************************************/
 									/*******************************************/
 									/*******************************************/
@@ -220,7 +223,7 @@ public class DefaultAgent implements IAgent {
 								
 							} else {
 								//agent has recovered!
-								System.err.println("Agent "+this.getID()+": Now BACK TO SUSCEPTIBE.");
+								System.err.println("Agent "+this.getID()+": Recovered (SUSCEPTIBE)");
 								this.setHealthStatus(DiseaseStages.S); //back to susceptible
 							}
 							
@@ -365,9 +368,13 @@ public class DefaultAgent implements IAgent {
 						msg = "IN";
 						bld.agentIn(this.getID(), this.getHealthStatus().isInfectious());
 						/** Add to buildings of the day: **/
+						System.out.print("Agent "+this.getID()+": Adding to building");
 						if (this.buildingsVisitedToday.indexOf(b) == -1) {
 							//add
 							this.buildingsVisitedToday.add(b);
+							System.out.println();
+						} else {
+							System.out.println(" (Already in)");
 						}
 						
 					} else {
