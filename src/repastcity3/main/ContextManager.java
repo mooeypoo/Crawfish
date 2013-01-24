@@ -719,9 +719,10 @@ public class ContextManager implements ContextBuilder<Object> {
         realTime += (1.0/60.0); //(1.0/60.0); // Increase the time by one minute (a 60th of an hour)
 	        if (realTime >= 24.0) { // If it's the end of a day then reset the time
 	        	writeOutput();
-	        	LOGGER.log(Level.INFO, "Output was written");
 	                realTime = 0.0;
 	                numberOfDays++; // Also increment our day counter
+		        	writeOutput();
+		        	LOGGER.log(Level.INFO, "Output was written");
 	                LOGGER.log(Level.INFO, "Simulating day "+numberOfDays);
 	                GlobalVars.currentDay = numberOfDays;
 	  				System.out.println();

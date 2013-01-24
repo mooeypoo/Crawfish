@@ -214,7 +214,8 @@ public class AgentFactory {
 		}
 		if (inf_Teen.size() > 0) {
 			for (int ind=0; ind<inf_Teen.size(); ind++) {
-				if (ind<GlobalVars.popListChild.size() && GlobalVars.popListChild.get(ind) != null) {
+				if (ind<GlobalVars.popListChild.size() && GlobalVars.popListChild.get(ind) != null 
+						&& GlobalVars.popListChild.get(ind).getType() == GlobalVars.P_TEEN) {
 					GlobalVars.popListChild.get(ind).setHealthStatus(DiseaseStages.I);
 					infectedCounter++;
 					infTcounter++;
@@ -223,7 +224,7 @@ public class AgentFactory {
 		}
 		if (inf_Child.size() > 0) {
 			for (int ind=0; ind<inf_Child.size(); ind++) {
-				if (ind<GlobalVars.popListChild.size() && GlobalVars.popListChild.get(ind) != null) {
+				if (ind<GlobalVars.popListChild.size() && GlobalVars.popListChild.get(ind) != null && GlobalVars.popListChild.get(ind).getType() == GlobalVars.P_CHILD) {
 					GlobalVars.popListChild.get(ind).setHealthStatus(DiseaseStages.I);
 					infectedCounter++;
 					infCcounter++;

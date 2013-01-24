@@ -14,7 +14,7 @@ import repastcity3.main.GlobalVars;
 
 public class Operations {
 	
-	private static int sad, ead, iad, rad, sch, ech, ich, rch, st, et, it, rt;
+	private static int sad, ead, iad, rad, dad, sch, ech, ich, rch, dch, st, et, it, rt, dt;
 	private static int childC, teenC;
 
 	public static String getTheDate(){
@@ -46,6 +46,8 @@ public class Operations {
 			iad++;
 		}else if(agent.getHealthStatus().equals(DiseaseStages.R)){
 			rad++;
+		}else if(agent.getHealthStatus().equals(DiseaseStages.D)){
+			dad++;
 		}
 		}// end of agent_list.hasNext()
 		int i =0,j=0;
@@ -62,7 +64,8 @@ public class Operations {
 				it++;
 			}else if(agent.getHealthStatus().equals(DiseaseStages.R)){
 				rt++;
-
+			}else if(agent.getHealthStatus().equals(DiseaseStages.D)){
+				dt++;
 			}
 		}else if(agent.getType() == GlobalVars.P_CHILD) { // if it's child
 			j++;
@@ -74,10 +77,12 @@ public class Operations {
 				ich++;
 			}else if(agent.getHealthStatus().equals(DiseaseStages.R)){
 				rch++;
+			}else if(agent.getHealthStatus().equals(DiseaseStages.D)){
+				dch++;
 			}
 		}
 		}// end of child_list.hasNext()
-		disease_agents = initialize_list(sad, ead, iad, rad, st, et, it, rt, sch, ech, ich, rch);
+		disease_agents = initialize_list(sad, ead, iad, rad, dad, st, et, it, rt, dt, sch, ech, ich, rch, dch);
 
 		return disease_agents;
 		
@@ -86,13 +91,13 @@ public class Operations {
 	
 	
 	private List<Integer> initialize_list(int s_ad, int e_ad, int i_ad,
-			int r_ad, int s_t, int e_t, int i_t, int r_t, int s_ch, int e_ch,
-			int i_ch, int r_ch) {
+			int r_ad, int d_ad, int s_t, int e_t, int i_t, int r_t, int d_t, int s_ch, int e_ch,
+			int i_ch, int r_ch, int d_ch) {
 		// TODO Auto-generated method stub
 		List<Integer> temp = new ArrayList<Integer>();
-		temp.add(s_ad); temp.add(e_ad); temp.add(i_ad); temp.add(r_ad);
-		temp.add(s_t); temp.add(e_t); temp.add(i_t); temp.add(r_t);
-		temp.add(s_ch); temp.add(e_ch); temp.add(i_ch); temp.add(r_ch);
+		temp.add(s_ad); temp.add(e_ad); temp.add(i_ad); temp.add(r_ad); temp.add(d_ad);
+		temp.add(s_t); temp.add(e_t); temp.add(i_t); temp.add(r_t); temp.add(d_t);
+		temp.add(s_ch); temp.add(e_ch); temp.add(i_ch); temp.add(r_ch); temp.add(d_ch);
 		return temp;
 	}
 

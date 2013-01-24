@@ -112,11 +112,12 @@ public class DefaultAgent implements IAgent {
 			}
 		}
 		
-		if (theTime==0.0) {
+		if (theTime == 0) {
+			System.out.println("Agent "+this.getID()+"DAILY HealthStatus Change.");
 			//Check health status at home:
 			/****************************************************/
 			double oddsOfInfectiousness = this.calcInfectiousness(this.home);
-			if (checkIfAgentIsSick(oddsOfInfectiousness)) {
+			if (checkIfAgentIsSick(oddsOfInfectiousness) == true) {
 				//sick
 				System.out.println("Agent#"+this.getID()+": (At Home) EXPOSED");
 			} else {
@@ -127,13 +128,15 @@ public class DefaultAgent implements IAgent {
 			
 			/// Infection status counters:
 			if (this.isImmune == true) {
+				System.out.println("Agent"+this.getID()+" is Immune.");
 				this.cHealthImmune++;
-				if (this.cHealthImmune >= GlobalVars.hCOUNTER_IMMUNE) {
+				if (this.cHealthImmune > GlobalVars.hCOUNTER_IMMUNE) {
 					this.isImmune = false;
 					this.cHealthImmune = 0;
 					System.err.println("Agent "+this.getID()+": No longer immune.");
 				}
 			} else {
+				System.out.println("Agent"+this.getID()+" is "+this.getHealthStatus().toString() + " --> CHECKING CHANGE.");
 				if (this.getHealthStatus() == DiseaseStages.E) {
 					this.cHealthExposed++;
 					if (this.cHealthExposed > GlobalVars.hCOUNTER_EXPOSED) {
@@ -299,17 +302,18 @@ public class DefaultAgent implements IAgent {
 				}
 
 				if (this.previousBuilding !=null) {
-					if (this.isImmune==false) { // && this.getHealthStatus().isInfectious()==false) {
-						double oddsOfInfectiousness = this.calcInfectiousness(this.previousBuilding);
-						if (checkIfAgentIsSick(oddsOfInfectiousness)) {
-							//sick
-							this.setHealthStatus(DiseaseStages.E);
-//							System.out.println("Agent#"+this.getID()+": EXPOSED");
-						} else {
-							//not sick
-//							System.out.println("Agent#"+this.getID()+": NOT EXPOSED");
+					if (this.isImmune==false) {
+						if (!this.getHealthStatus().isInfectious() && this.getHealthStatus() != DiseaseStages.D) { 
+		
+							double oddsOfInfectiousness = this.calcInfectiousness(this.previousBuilding);
+							if (checkIfAgentIsSick(oddsOfInfectiousness)) {
+								//sick
+								this.setHealthStatus(DiseaseStages.E);
+							} else {
+								//not sick
+							}
+							
 						}
-						
 
 						this.alreadyUpdatedBuilding = true;
 					}

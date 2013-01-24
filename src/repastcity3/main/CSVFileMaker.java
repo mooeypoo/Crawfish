@@ -1,5 +1,6 @@
 package repastcity3.main;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -8,12 +9,16 @@ import java.util.List;
 public class CSVFileMaker {
 
 	private String file;
+	File f;
 	FileWriter wr;
 	PrintWriter pr;
 	
 	public CSVFileMaker(String fileName) throws IOException{
-		this.setFile(fileName);
-		this.wr = new FileWriter(fileName);
+		String nameOfFile = "Output";
+		nameOfFile +=f.separator;
+		nameOfFile += fileName;
+		this.setFile(nameOfFile);
+		this.wr = new FileWriter(nameOfFile);
 		this.pr = new PrintWriter(wr);
 	}
 	 	
@@ -33,6 +38,8 @@ public class CSVFileMaker {
 				pr.print("I_Adults");
 				pr.print(",");
 				pr.print("R_Adults");
+				pr.print(",");
+				pr.print("D_Adults");
 				pr.println();
 				break;
 			case 'T':
@@ -47,6 +54,8 @@ public class CSVFileMaker {
 				pr.print("I_Teens");
 				pr.print(",");
 				pr.print("R_Teens");
+				pr.print(",");
+				pr.print("D_Teens");
 				pr.println();
 				break;
 			case 'C':
@@ -61,15 +70,14 @@ public class CSVFileMaker {
 				pr.print("I_Children");
 				pr.print(",");
 				pr.print("R_Children");
+				pr.print(",");
+				pr.print("D_Children");
 				pr.println();
 				break;
 		}
-		
-		
+				
 		pr.flush();
-		
 
-		
 	}
 	
 	public void setFile(String fileName){
@@ -95,6 +103,8 @@ public class CSVFileMaker {
 			pr.print(dis_all.get(2));
 			pr.print(",");
 			pr.print(dis_all.get(3));
+			pr.print(",");
+			pr.print(dis_all.get(4));
 			pr.println();
 			break;
 		case 'T':
@@ -102,13 +112,15 @@ public class CSVFileMaker {
 			pr.print(",");
 			pr.print(pop_all.get(2));
 			pr.print(",");
-			pr.print(dis_all.get(4));
-			pr.print(",");
 			pr.print(dis_all.get(5));
 			pr.print(",");
 			pr.print(dis_all.get(6));
 			pr.print(",");
 			pr.print(dis_all.get(7));
+			pr.print(",");
+			pr.print(dis_all.get(8));
+			pr.print(",");
+			pr.print(dis_all.get(9));
 			pr.println();
 			break;
 		case 'C':
@@ -116,13 +128,15 @@ public class CSVFileMaker {
 			pr.print(",");
 			pr.print(pop_all.get(1));
 			pr.print(",");
-			pr.print(dis_all.get(8));
-			pr.print(",");
-			pr.print(dis_all.get(9));
-			pr.print(",");
 			pr.print(dis_all.get(10));
 			pr.print(",");
 			pr.print(dis_all.get(11));
+			pr.print(",");
+			pr.print(dis_all.get(12));
+			pr.print(",");
+			pr.print(dis_all.get(13));
+			pr.print(",");
+			pr.print(dis_all.get(14));
 			pr.println();
 			break;
 	}
