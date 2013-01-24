@@ -94,244 +94,246 @@ public class DefaultAgent implements IAgent {
 
 	@Override
 	public void step() throws Exception {
-
-		/** CHECK TIME OF DAY **/
-		double theTime = BigDecimal.valueOf(ContextManager.realTime).
-		        round(new MathContext(5,RoundingMode.HALF_UP)).doubleValue();
-
-		//skip everything if the user is going home:
-		if (this.getGoHome()==false) {
-			//to save calculation time, only check agenda items on 60-min intervals:
-			if ((theTime%0.5) == 0) {
-				Building nextDestBuilding = this.getNextAgendaItem(theTime);
-				if ((nextDestBuilding != null)) { 
-					// Leaving towards new destination.
-					this.alreadyUpdatedBuilding = false;
-					this.route = new Route(this, nextDestBuilding.getCoords(), nextDestBuilding); // Create a route to work
-				}
-			}
-		}
-		
-		if (theTime == 0) {
-			System.out.println("Agent "+this.getID()+"DAILY HealthStatus Change.");
-			//Check health status at home:
-			/****************************************************/
-			double oddsOfInfectiousness = this.calcInfectiousness(this.home);
-			if (checkIfAgentIsSick(oddsOfInfectiousness) == true) {
-				//sick
-				System.out.println("Agent#"+this.getID()+": (At Home) EXPOSED");
-			} else {
-				//not sick
-				System.out.println("Agent#"+this.getID()+": (At Home) NOT EXPOSED");
-			}
-			/****************************************************/
-			
-			/// Infection status counters:
-			if (this.isImmune == true) {
-				System.out.println("Agent"+this.getID()+" is Immune.");
-				this.cHealthImmune++;
-				if (this.cHealthImmune > GlobalVars.hCOUNTER_IMMUNE) {
-					this.isImmune = false;
-					this.cHealthImmune = 0;
-					System.err.println("Agent "+this.getID()+": No longer immune.");
-				}
-			} else {
-				System.out.println("Agent"+this.getID()+" is "+this.getHealthStatus().toString() + " --> CHECKING CHANGE.");
-				if (this.getHealthStatus() == DiseaseStages.E) {
-					this.cHealthExposed++;
-					if (this.cHealthExposed > GlobalVars.hCOUNTER_EXPOSED) {
-						//move on to next stage:
-						this.setHealthStatus(DiseaseStages.I);
-						this.cHealthExposed=0;
-						System.err.println("Agent "+this.getID()+": Now INFECTED.");
+		if (!this.getHealthStatus() == DiseaseStages.D) {
+			/** CHECK TIME OF DAY **/
+			double theTime = BigDecimal.valueOf(ContextManager.realTime).
+			        round(new MathContext(5,RoundingMode.HALF_UP)).doubleValue();
+	
+			//skip everything if the user is going home:
+			if (this.getGoHome()==false) {
+				//to save calculation time, only check agenda items on 60-min intervals:
+				if ((theTime%0.5) == 0) {
+					Building nextDestBuilding = this.getNextAgendaItem(theTime);
+					if ((nextDestBuilding != null)) { 
+						// Leaving towards new destination.
+						this.alreadyUpdatedBuilding = false;
+						this.route = new Route(this, nextDestBuilding.getCoords(), nextDestBuilding); // Create a route to work
 					}
-				} else if (this.getHealthStatus() == DiseaseStages.I) {
-					this.cHealthInfected++;
-					if (this.cHealthInfected > GlobalVars.hCOUNTER_INFECTED) {
-						//move on to next stage:
-						Random randomGenerator = new Random(123987);
-						int randDice = randomGenerator.nextInt(100);
-						if (randDice <= (GlobalVars.DISEASE_PERC_DEATHS)) {
-							//agent is dead :(
-							System.err.println("Agent "+this.getID()+": DEAD.");
-							//remove from family:
-							if (this.getType()==GlobalVars.P_ADULT) {
-								//check if there is a partner:
-								if (this.getPartner( ) > -1) {
-									//remove from partner:
-									GlobalVars.popListAdult.get(this.getPartner()).setPartner(-1);
-								}
-								if (this.getChild1() > -1) {
-									//remove from child
-									if (this.getID() == GlobalVars.popListChild.get(this.getChild1()).getFather()) {
-										GlobalVars.popListChild.get(this.getChild1()).setFather(-1);
-									} else if (this.getID() == GlobalVars.popListChild.get(this.getChild1()).getMother()) {
-										GlobalVars.popListChild.get(this.getChild1()).setMother(-1);
+				}
+			}
+			
+			if (theTime == 0) {
+				System.out.println("Agent "+this.getID()+" DAILY HealthStatus Change.");
+				//Check health status at home:
+				/****************************************************/
+				double oddsOfInfectiousness = this.calcInfectiousness(this.home);
+				if (checkIfAgentIsSick(oddsOfInfectiousness) == true) {
+					//sick
+					System.out.println("Agent#"+this.getID()+": (At Home) EXPOSED");
+				} else {
+					//not sick
+					System.out.println("Agent#"+this.getID()+": (At Home) NOT EXPOSED");
+				}
+				/****************************************************/
+				
+				/// Infection status counters:
+				if (this.isImmune == true) {
+					System.out.println("Agent"+this.getID()+" is Immune.");
+					this.cHealthImmune++;
+					if (this.cHealthImmune > GlobalVars.hCOUNTER_IMMUNE) {
+						this.isImmune = false;
+						this.cHealthImmune = 0;
+						System.err.println("Agent "+this.getID()+": No longer immune.");
+					}
+				} else {
+					System.out.println("Agent"+this.getID()+" is "+this.getHealthStatus().toString() + " --> CHECKING CHANGE.");
+					if (this.getHealthStatus() == DiseaseStages.E) {
+						this.cHealthExposed++;
+						System.out.println("Agent"+this.getID()+" Exposed Counter: "+this.cHealthExposed);
+						if (this.cHealthExposed > GlobalVars.hCOUNTER_EXPOSED) {
+							//move on to next stage:
+							this.setHealthStatus(DiseaseStages.I);
+							this.cHealthExposed=0;
+							System.err.println("Agent "+this.getID()+": Now INFECTED.");
+						}
+					} else if (this.getHealthStatus() == DiseaseStages.I) {
+						this.cHealthInfected++;
+						System.out.println("Agent"+this.getID()+" Infected Counter: "+this.cHealthInfected);
+						if (this.cHealthInfected > GlobalVars.hCOUNTER_INFECTED) {
+							//move on to next stage:
+							Random randomGenerator = new Random(123987);
+							int randDice = randomGenerator.nextInt(100);
+							if (randDice <= (GlobalVars.DISEASE_PERC_DEATHS)) {
+								//agent is dead :(
+								System.err.println("Agent "+this.getID()+": DEAD.");
+								//remove from family:
+								if (this.getType()==GlobalVars.P_ADULT) {
+									//check if there is a partner:
+									if (this.getPartner( ) > -1) {
+										//remove from partner:
+										GlobalVars.popListAdult.get(this.getPartner()).setPartner(-1);
 									}
-								}
-								if (this.getChild2() > -1) {
-									//remove from child
-									if (this.getID() == GlobalVars.popListChild.get(this.getChild2()).getFather()) {
-										GlobalVars.popListChild.get(this.getChild2()).setFather(-1);
-									} else if (this.getID() == GlobalVars.popListChild.get(this.getChild2()).getMother()) {
-										GlobalVars.popListChild.get(this.getChild2()).setMother(-1);
+									if (this.getChild1() > -1) {
+										//remove from child
+										if (this.getID() == GlobalVars.popListChild.get(this.getChild1()).getFather()) {
+											GlobalVars.popListChild.get(this.getChild1()).setFather(-1);
+										} else if (this.getID() == GlobalVars.popListChild.get(this.getChild1()).getMother()) {
+											GlobalVars.popListChild.get(this.getChild1()).setMother(-1);
+										}
 									}
+									if (this.getChild2() > -1) {
+										//remove from child
+										if (this.getID() == GlobalVars.popListChild.get(this.getChild2()).getFather()) {
+											GlobalVars.popListChild.get(this.getChild2()).setFather(-1);
+										} else if (this.getID() == GlobalVars.popListChild.get(this.getChild2()).getMother()) {
+											GlobalVars.popListChild.get(this.getChild2()).setMother(-1);
+										}
+									}
+									// set status to DEAD:
+									this.setHealthStatus(DiseaseStages.D);
+									/*******************************************/
+									/*******************************************/
+									/*******************************************/
+									/** DO WE ERASE THE PERSON FROM THE LIST? **/
+									/*******************************************/
+									/*******************************************/
+									/*******************************************/
+									
+								} else {
+									//remove from parents:
+									int momIndex = this.getMother();
+									if (this.getID()==GlobalVars.popListAdult.get(momIndex).getChild1()) {
+										GlobalVars.popListAdult.get(momIndex).setChild1(-1);
+									} else if (this.getID()==GlobalVars.popListAdult.get(momIndex).getChild2()) {
+										GlobalVars.popListAdult.get(momIndex).setChild2(-1);
+									}
+									int dadIndex = this.getFather();
+									if (this.getID()==GlobalVars.popListAdult.get(dadIndex).getChild1()) {
+										GlobalVars.popListAdult.get(dadIndex).setChild1(-1);
+									} else if (this.getID()==GlobalVars.popListAdult.get(dadIndex).getChild2()) {
+										GlobalVars.popListAdult.get(dadIndex).setChild2(-1);
+									}
+									//remove from sibling:
+									if (this.getSibling() > -1) {
+										GlobalVars.popListChild.get(this.getSibling()).setSibling(-1);
+									}
+									// set status to DEAD:
+									this.setHealthStatus(DiseaseStages.D);
+									/*******************************************/
+									/*******************************************/
+									/*******************************************/
+									/** DO WE ERASE THE PERSON FROM THE LIST? **/
+									/*******************************************/
+									/*******************************************/
+									/*******************************************/
 								}
-								// set status to DEAD:
-								this.setHealthStatus(DiseaseStages.D);
-								/*******************************************/
-								/*******************************************/
-								/*******************************************/
-								/** DO WE ERASE THE PERSON FROM THE LIST? **/
-								/*******************************************/
-								/*******************************************/
-								/*******************************************/
 								
 							} else {
-								//remove from parents:
-								int momIndex = this.getMother();
-								if (this.getID()==GlobalVars.popListAdult.get(momIndex).getChild1()) {
-									GlobalVars.popListAdult.get(momIndex).setChild1(-1);
-								} else if (this.getID()==GlobalVars.popListAdult.get(momIndex).getChild2()) {
-									GlobalVars.popListAdult.get(momIndex).setChild2(-1);
-								}
-								int dadIndex = this.getFather();
-								if (this.getID()==GlobalVars.popListAdult.get(dadIndex).getChild1()) {
-									GlobalVars.popListAdult.get(dadIndex).setChild1(-1);
-								} else if (this.getID()==GlobalVars.popListAdult.get(dadIndex).getChild2()) {
-									GlobalVars.popListAdult.get(dadIndex).setChild2(-1);
-								}
-								//remove from sibling:
-								if (this.getSibling() > -1) {
-									GlobalVars.popListChild.get(this.getSibling()).setSibling(-1);
-								}
-								// set status to DEAD:
-								this.setHealthStatus(DiseaseStages.D);
-								/*******************************************/
-								/*******************************************/
-								/*******************************************/
-								/** DO WE ERASE THE PERSON FROM THE LIST? **/
-								/*******************************************/
-								/*******************************************/
-								/*******************************************/
+								//agent has recovered!
+								System.err.println("Agent "+this.getID()+": Now BACK TO SUSCEPTIBE.");
+								this.setHealthStatus(DiseaseStages.S); //back to susceptible
 							}
 							
-						} else {
-							//agent has recovered!
-							System.err.println("Agent "+this.getID()+": Now BACK TO SUSCEPTIBE.");
-							this.setHealthStatus(DiseaseStages.S); //back to susceptible
+							this.cHealthInfected=0;
 						}
-						
-						this.cHealthInfected=0;
+					}
+				}
+				
+				/*****************************************
+				 *****************************************
+				 *****************************************
+				 *****************************************
+				 **   RESET BUILDINGS OF THE DAY HERE   **
+				 *****************************************
+				 *****************************************
+				 *****************************************
+				 *****************************************
+				 */
+				if (!this.getHealthStatus().isInfectious()) { //agent healed
+					for (Building b : this.buildingsVisitedToday) {
+						synchronized (ContextManager.randomLock) {
+							Iterator<Building> bList = ContextManager.buildingContext.getRandomObjects(Building.class, 10000).iterator();
+							String msg = "";
+							while (bList.hasNext()) {
+								Building bld = bList.next();
+								if (bld.equals(b)) {
+									bld.removeSickAgent(this.getID());
+								}
+							}
+						}
 					}
 				}
 			}
 			
-			/*****************************************
-			 *****************************************
-			 *****************************************
-			 *****************************************
-			 **   RESET BUILDINGS OF THE DAY HERE   **
-			 *****************************************
-			 *****************************************
-			 *****************************************
-			 *****************************************
-			 */
-			if (!this.getHealthStatus().isInfectious()) { //agent healed
-				for (Building b : this.buildingsVisitedToday) {
-					synchronized (ContextManager.randomLock) {
-						Iterator<Building> bList = ContextManager.buildingContext.getRandomObjects(Building.class, 10000).iterator();
-						String msg = "";
-						while (bList.hasNext()) {
-							Building bld = bList.next();
-							if (bld.equals(b)) {
-								bld.removeSickAgent(this.getID());
-							}
-						}
+			
+			
+			/** ROUTE DEFINITIONS **/
+			if (this.route == null) {
+				/** 
+				 * Null route means the agent is inside a building.
+				 * 
+				 * Start counting the time Agent is at location
+				 * so we can use this for the infectiousness calculation
+				 * when the agent leaves the location
+				 *  **/
+				this.timeSpentInLocation++;
+				//for the first time, check the building (agent in):
+				if (this.alreadyUpdatedBuilding == false) {
+					//agentIn
+	//				if (!visitBuilding(this.previousBuilding,false)) {//go out
+	//					System.err.println("ERR: NO BUILDING FOUND (previousBuilding)");
+	//				}
+					if (!visitBuilding(this.currentBuilding,true)) { //go in
+						System.err.println("ERR: NO BUILDING FOUND (currentBuilding)");
 					}
+					this.alreadyUpdatedBuilding = true;
+					
 				}
-			}
-		}
-		
-		
-		
-		/** ROUTE DEFINITIONS **/
-		if (this.route == null) {
-			/** 
-			 * Null route means the agent is inside a building.
-			 * 
-			 * Start counting the time Agent is at location
-			 * so we can use this for the infectiousness calculation
-			 * when the agent leaves the location
-			 *  **/
-			this.timeSpentInLocation++;
-			//for the first time, check the building (agent in):
-			if (this.alreadyUpdatedBuilding == false) {
-				//agentIn
-//				if (!visitBuilding(this.previousBuilding,false)) {//go out
-//					System.err.println("ERR: NO BUILDING FOUND (previousBuilding)");
-//				}
-				if (!visitBuilding(this.currentBuilding,true)) { //go in
-					System.err.println("ERR: NO BUILDING FOUND (currentBuilding)");
-				}
-				this.alreadyUpdatedBuilding = true;
-				
-			}
-		} else if (!this.route.atDestination()) {
-			//Agent is traveling
-
-			this.alreadyUpdatedBuilding = false;
-			if (this.getStayHome()==true && this.getIsHome()==true) {
-				//stay home.
-				System.out.println("Agent" + this.getID()+ " STAYS HOME.");
-			} else {
-				this.route.travel();
-			}
-
-		} else if (this.route.atDestination()) {
-			//Agent reached destination. 
-			this.previousBuilding = this.currentBuilding;
-			this.currentBuilding = this.route.getDestinationBuilding();
-			if (this.alreadyUpdatedBuilding==false) {
-				
-				// CALCULATE INFECTIOUSNESS
-				if (this.route.getDestinationBuilding().equals(this.home)) {
-					this.setIsHome(true);
-				} else {
-					this.setIsHome(false);
-				}
-
-				if (this.previousBuilding !=null) {
-					if (this.isImmune==false) {
-						if (!this.getHealthStatus().isInfectious() && this.getHealthStatus() != DiseaseStages.D) { 
-		
-							double oddsOfInfectiousness = this.calcInfectiousness(this.previousBuilding);
-							if (checkIfAgentIsSick(oddsOfInfectiousness)) {
-								//sick
-								this.setHealthStatus(DiseaseStages.E);
-							} else {
-								//not sick
-							}
-							
-						}
-
-						this.alreadyUpdatedBuilding = true;
-					}
-				}
-			}
-
-			if (this.getGoHome()==true && this.getIsHome()==false) {
-				// SEND AGENT HOME:
-				this.route = new Route(this, this.home.getCoords(), this.home); // Create a route to home
-				System.out.println("Agent" + this.getID()+ " IS GOING HOME.");
-				
-			} else {
-				this.route = null;
+			} else if (!this.route.atDestination()) {
+				//Agent is traveling
+	
 				this.alreadyUpdatedBuilding = false;
-				this.timeSpentInLocation = 0;
+				if (this.getStayHome()==true && this.getIsHome()==true) {
+					//stay home.
+					System.out.println("Agent" + this.getID()+ " STAYS HOME.");
+				} else {
+					this.route.travel();
+				}
+	
+			} else if (this.route.atDestination()) {
+				//Agent reached destination. 
+				this.previousBuilding = this.currentBuilding;
+				this.currentBuilding = this.route.getDestinationBuilding();
+				if (this.alreadyUpdatedBuilding==false) {
+					
+					// CALCULATE INFECTIOUSNESS
+					if (this.route.getDestinationBuilding().equals(this.home)) {
+						this.setIsHome(true);
+					} else {
+						this.setIsHome(false);
+					}
+	
+					if (this.previousBuilding !=null) {
+						if (this.isImmune==false) {
+							if (!this.getHealthStatus().isInfectious() && this.getHealthStatus() != DiseaseStages.D) { 
+			
+								double oddsOfInfectiousness = this.calcInfectiousness(this.previousBuilding);
+								if (checkIfAgentIsSick(oddsOfInfectiousness)) {
+									//sick
+									this.setHealthStatus(DiseaseStages.E);
+								} else {
+									//not sick
+								}
+								
+							}
+	
+							this.alreadyUpdatedBuilding = true;
+						}
+					}
+				}
+	
+				if (this.getGoHome()==true && this.getIsHome()==false) {
+					// SEND AGENT HOME:
+					this.route = new Route(this, this.home.getCoords(), this.home); // Create a route to home
+					System.out.println("Agent" + this.getID()+ " IS GOING HOME.");
+					
+				} else {
+					this.route = null;
+					this.alreadyUpdatedBuilding = false;
+					this.timeSpentInLocation = 0;
+				}
 			}
-		}
-
+		} // if not dead
 	} // step()
 
 	public boolean checkIfAgentIsSick(double oddsOfInfectiousness) {
